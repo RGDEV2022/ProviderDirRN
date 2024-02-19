@@ -5,6 +5,7 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
+    "build-ios-dev": "eas build -p ios --profile simulator",
     "ios": "expo start --ios",
     "web": "expo start --web"
   },
