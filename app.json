@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ProviderDirRN",
-    "slug": "ProviderDirRN",
+    "slug": "provider-dir",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a8ea2f33-7865-4f7c-89cf-14babf78d157"
+      }
+    },
+    "owner": "vendor.admin"
   }
 }
