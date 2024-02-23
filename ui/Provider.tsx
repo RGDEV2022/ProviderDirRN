@@ -20,13 +20,9 @@ const Provider = (props: IProviderProps) => {
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <Avatar type={"provider"} />
-        <View>
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-          <Text style={styles.address} numberOfLines={1}>
-            {address}
-          </Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.address}>{address}</Text>
         </View>
       </View>
       <Spacer />

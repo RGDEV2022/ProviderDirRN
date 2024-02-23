@@ -4,11 +4,6 @@ import { StyleSheet, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { DARK_BG_COLOR_VALUE } from "../constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import { BottomSheetFlatList, BottomSheetView } from "@gorhom/bottom-sheet";
-import FlexContainer from "../ui/FlexContainer";
-import PaddedContainer from "../ui/PaddedContainer";
-import Provider from "../ui/Provider";
 import SearchBar from "./SearchBar";
 import Avatar from "../ui/Avatar";
 import FilterBar from "./FilterBar";

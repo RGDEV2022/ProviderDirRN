@@ -2,13 +2,18 @@ import React from "react";
 import MapView from "react-native-maps";
 import { StyleSheet, View } from "react-native";
 import TransitionViews from "../components/TransitionViews";
+import TransitionWrapper from "../components/TransitionWrapper";
 
 export default function Map() {
   return (
-    <View style={styles.container}>
-      <MapView style={styles.map} userInterfaceStyle="dark" />
-      <TransitionViews />
-    </View>
+    <>
+      <View style={styles.container}>
+        <TransitionWrapper>
+          <MapView style={styles.map} userInterfaceStyle="dark" />
+          <TransitionViews />
+        </TransitionWrapper>
+      </View>
+    </>
   );
 }
 
