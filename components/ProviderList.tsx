@@ -1,20 +1,19 @@
-import {
-  BottomSheetFlatList,
-  BottomSheetModal,
-  useBottomSheetTimingConfigs,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetFlatList, BottomSheetModal } from "@gorhom/bottom-sheet";
 import PaddedContainer from "../ui/PaddedContainer";
 import Provider from "../ui/Provider";
 import Divider from "../ui/Divider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRef } from "react";
-import { View, Text, Pressable } from "react-native";
+import { useState } from "react";
+import { View, Text, Pressable, Modal, StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 import Card from "../ui/Card";
 import Spacer from "../ui/Spacer";
 import useModalState from "../store/store";
 import AnimatedPressable from "../ui/AnimatedPressable";
-import Animated, { FadeIn, FadeOut, Easing } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import FlexContainer from "../ui/FlexContainer";
+import Button from "../ui/Button";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
@@ -25,21 +24,22 @@ type ProviderCardProps = {
   type: "hospital" | "individual";
   distance: string;
   phone: string;
+  acceptNewPatients: boolean;
   specialties: string[];
 };
 
 const ProviderList = () => {
   const insets = useSafeAreaInsets();
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const { handleModal } = useModalState();
 
   const handleCloseModal = () => {
-    bottomSheetModalRef.current?.close();
+    setModalVisible(false);
     handleModal(false);
   };
 
   const handleOpenProvider = () => {
-    bottomSheetModalRef.current?.present();
+    setModalVisible(true);
     handleModal(true);
   };
 
@@ -64,6 +64,7 @@ const ProviderList = () => {
               <Provider
                 title={item.title}
                 group={item.group}
+                acceptNewPatients={item.acceptNewPatients}
                 address={item.address}
                 type={item.type}
                 distance={item.distance}
@@ -75,33 +76,40 @@ const ProviderList = () => {
         )}
         keyExtractor={(item, i) => `${item.title}-${i}`}
       />
-      <BottomSheetModal
-        ref={bottomSheetModalRef}
-        animateOnMount={false}
-        index={0}
-        snapPoints={["100%"]}
-        backgroundComponent={({ style }) => (
-          <AnimatedBlurView
-            entering={FadeIn}
-            exiting={FadeOut}
-            intensity={50}
-            tint="dark"
-            style={[style]}
-          />
-        )}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        statusBarTranslucent={true}
       >
-        <View style={{ display: "flex", alignItems: "center", flex: 1 }}>
-          <Pressable
-            style={{
-              position: "absolute",
-              top: insets.top,
-              right: 15,
-            }}
-            onPress={handleCloseModal}
-          >
-            <Text style={{ color: "#fff" }}>X</Text>
-          </Pressable>
-          <Spacer space={insets.top + 50} />
+        <AnimatedBlurView
+          entering={FadeIn}
+          exiting={FadeOut}
+          intensity={50}
+          tint="dark"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+        />
+        <Pressable
+          style={{
+            position: "absolute",
+            top: insets.top,
+            right: 15,
+            zIndex: 2,
+          }}
+          onPress={handleCloseModal}
+        >
+          <Text style={{ color: "#fff" }}>X</Text>
+        </Pressable>
+        <Spacer space={insets.top + 50} />
+        <View
+          style={{ display: "flex", alignItems: "center", flex: 1, gap: 8 }}
+        >
           <View
             style={{
               paddingLeft: 20,
@@ -117,20 +125,59 @@ const ProviderList = () => {
                 type={PROVIDER_DATA[0].type}
                 distance={PROVIDER_DATA[0].distance}
                 phone={PROVIDER_DATA[0].phone}
+                acceptNewPatients={PROVIDER_DATA[0].acceptNewPatients}
                 specialties={PROVIDER_DATA[0].specialties}
+                fullCard
               />
             </Card>
           </View>
+          <FlexContainer flexDirection="row">
+            <Button variant="primary" uniform>
+              <View style={styles.buttonStyle}>
+                <MaterialCommunityIcons name="car" size={22} color="white" />
+                <Text style={styles.buttonText}>1.2 miles</Text>
+              </View>
+            </Button>
+
+            <Button uniform>
+              <View style={styles.buttonStyle}>
+                <MaterialCommunityIcons name="phone" size={19} color="white" />
+                <Text style={styles.buttonText}>Call</Text>
+              </View>
+            </Button>
+
+            <Button uniform>
+              <View style={styles.buttonStyle}>
+                <MaterialCommunityIcons name="share" size={22} color="white" />
+                <Text style={styles.buttonText}>Share</Text>
+              </View>
+            </Button>
+          </FlexContainer>
         </View>
-      </BottomSheetModal>
+      </Modal>
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  buttonText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "500",
+  },
+  buttonStyle: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+});
 
 const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -140,6 +187,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -149,6 +197,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -158,6 +207,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -167,6 +217,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -176,6 +227,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -185,6 +237,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -194,6 +247,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -203,6 +257,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -212,6 +267,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
@@ -221,6 +277,7 @@ const PROVIDER_DATA: ProviderCardProps[] = [
   {
     title: "METHODIST HOSPITAL FOR CONTINUING CARE",
     group: "Acute inpatient hospital",
+    acceptNewPatients: true,
     address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
     type: "hospital",
     distance: "1.22",
