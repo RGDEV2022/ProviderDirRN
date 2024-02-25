@@ -6,6 +6,7 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import { TRANSITION_DURATION } from "../constants";
 
 interface AnimatedPressableProps extends PressableProps {
   children?: React.ReactNode;
@@ -15,7 +16,7 @@ const AnimatedPressable = (props: AnimatedPressableProps) => {
   const scale = useSharedValue(1);
 
   const handlePressIn = () => {
-    scale.value = withTiming(1.02, { duration: 500 });
+    scale.value = withTiming(1.03, { duration: TRANSITION_DURATION });
   };
 
   const handlePressOut = () => {

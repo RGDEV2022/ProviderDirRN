@@ -61,9 +61,8 @@ const Provider = (props: IProviderProps) => {
 
           <Spacer />
           <Text style={styles.subTitle}>Availability</Text>
-          <Text style={styles.subText}>
-            <AcceptingPatients acceptNewPatients={acceptNewPatients} />
-          </Text>
+
+          <AcceptingPatients acceptNewPatients={acceptNewPatients} />
         </>
       )}
     </View>
@@ -83,7 +82,7 @@ const AcceptingPatients = ({
           <Text style={styles.subText}>Accepting new patients</Text>
         </View>
       ) : (
-        <View style={styles.flexContainer}>
+        <View style={[styles.flexContainer, { alignItems: "center" }]}>
           <AntDesign name="checkcircle" size={14} color="red" />
           <Text style={styles.subText}>Not accepting new patients</Text>
         </View>

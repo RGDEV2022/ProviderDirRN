@@ -10,8 +10,6 @@ const TransitionWrapper = ({ children }: { children: React.ReactNode }) => {
   const { modalState } = useModalState();
   const isModalOpen = modalState;
 
-  console.log({ isModalOpen });
-
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
   scale.value = withTiming(isModalOpen ? 0.97 : 1);

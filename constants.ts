@@ -47,6 +47,8 @@ export type TFilterValue = { label: string; value: number };
 export const STANDARD_PADDING = 14;
 export const VERTICAL_PADDING = 12;
 
+export const TRANSITION_DURATION = 600;
+
 export const SPECIALTIES = [
   "AMBULATORY SURGERY CENTER",
   "BEHAVIORAL HEALTH",
@@ -324,4 +326,140 @@ export const SPECIALTIES = [
   "VASCULAR NEUROLOGY",
   "VASCULAR SURGERY",
   "VISITING NURSE",
+];
+
+export type ProviderCardProps = {
+  title: string;
+  group: string;
+  address: string;
+  type: "hospital" | "individual";
+  distance: string;
+  phone: string;
+  acceptNewPatients: boolean;
+  specialties: string[];
+  locationID?: string;
+};
+
+export const PROVIDER_DATA: ProviderCardProps[] = [
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "1",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "2",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "3",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "4",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "5",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "6",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "7",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "8",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "9",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "10",
+  },
+  {
+    title: "METHODIST HOSPITAL FOR CONTINUING CARE",
+    group: "Acute inpatient hospital",
+    acceptNewPatients: true,
+    address: "401 W CAMPBELL RD, RICHARDSON, TX, 75080",
+    type: "hospital",
+    distance: "1.22",
+    phone: "4692041000",
+    specialties: ["Acute inpatient hospital"],
+    locationID: "11",
+  },
 ];
