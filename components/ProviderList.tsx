@@ -77,11 +77,12 @@ const ProviderList = () => {
         renderItem={ProviderItem}
         keyExtractor={(item, i) => `${item.title}-${i}`}
       />
-      <ProviderPeek
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        targetPosition={targetPosition}
-      />
+      {modalVisible ? (
+        <ProviderPeek
+          setModalVisible={setModalVisible}
+          targetPosition={targetPosition}
+        />
+      ) : null}
     </>
   );
 };
