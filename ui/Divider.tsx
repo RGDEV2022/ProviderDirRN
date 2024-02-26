@@ -1,10 +1,23 @@
 import { View, StyleSheet } from "react-native";
 import { VERTICAL_PADDING } from "../constants";
 
-const Divider = ({ noSpacing }: { noSpacing?: boolean }) => {
+const Divider = ({
+  noSpacing,
+  orientation = "horizontal",
+}: {
+  noSpacing?: boolean;
+  orientation?: "vertical" | "horizontal";
+}) => {
   return (
     <View
-      style={[styles.divider, { marginTop: noSpacing ? 0 : VERTICAL_PADDING }]}
+      style={[
+        styles.divider,
+        {
+          marginTop: noSpacing ? 0 : VERTICAL_PADDING,
+          width: orientation === "vertical" ? 0.3 : "100%",
+          height: orientation === "horizontal" ? 0.3 : "80%",
+        },
+      ]}
     />
   );
 };
@@ -14,8 +27,7 @@ export default Divider;
 const styles = StyleSheet.create({
   divider: {
     width: "100%",
-    height: 0.3,
     backgroundColor: "#fff",
-    opacity: 0.8,
+    opacity: 0.3,
   },
 });

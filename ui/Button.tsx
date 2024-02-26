@@ -3,7 +3,6 @@ import { Pressable, PressableProps } from "react-native";
 interface IButtonProps extends PressableProps {
   variant?: "primary" | "secondary";
   uniform?: boolean;
-  //extra style props
   sx?: PressableProps["style"];
 }
 
@@ -19,8 +18,8 @@ const Button = (props: IButtonProps) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: uniform ? 60 : "auto",
-          height: uniform ? 40 : 40,
+          width: uniform ? 65 : "auto",
+          height: uniform ? 45 : "auto",
           backgroundColor: pressed ? "#222222" : buttonColor,
           shadowColor: "#000",
           shadowOffset: {

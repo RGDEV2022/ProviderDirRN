@@ -1,8 +1,7 @@
 import Provider from "../ui/Provider";
-import { View, Text, Pressable, Modal, StyleSheet } from "react-native";
+import { View, Text, Modal, StyleSheet, TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
 import Card from "../ui/Card";
-import Spacer from "../ui/Spacer";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -23,6 +22,8 @@ import {
 } from "react-native-gesture-handler";
 import Button from "../ui/Button";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Octicons } from "@expo/vector-icons";
 import useModalState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PROVIDER_DATA } from "../constants";
@@ -41,7 +42,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
   const { handleModal } = useModalState();
   const insets = useSafeAreaInsets();
 
-  const topPosition = insets.top + 30;
+  const topPosition = insets.top + 40;
 
   const translateY = useSharedValue(targetPosition?.y);
   const opacity = useSharedValue(0);
@@ -152,7 +153,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
           bottom: 0,
         }}
       />
-      <Pressable
+      <TouchableOpacity
         style={{
           position: "absolute",
           top: insets.top,
@@ -161,8 +162,8 @@ const ProviderPeek = (props: IProviderPeekProps) => {
         }}
         onPress={handleCloseModal}
       >
-        <Text style={{ color: "#fff" }}>X</Text>
-      </Pressable>
+        <MaterialCommunityIcons name="close-circle" size={22} color="white" />
+      </TouchableOpacity>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GestureDetector gesture={pan}>
           <Animated.View
@@ -238,7 +239,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
                           color="white"
                         />
                       </View>
-                      <Text style={styles.buttonText}>1.2 miles</Text>
+                      <Text style={styles.buttonText}>1.2 mi</Text>
                     </View>
                   </Button>
                   <Button uniform>
@@ -256,13 +257,21 @@ const ProviderPeek = (props: IProviderPeekProps) => {
                   <Button uniform>
                     <View style={styles.buttonStyle}>
                       <View style={styles.iconContainer}>
+                        <Octicons name="share" size={19} color="white" />
+                      </View>
+                      <Text style={styles.buttonText}>Share</Text>
+                    </View>
+                  </Button>
+                  <Button uniform>
+                    <View style={styles.buttonStyle}>
+                      <View style={styles.iconContainer}>
                         <MaterialCommunityIcons
-                          name="share"
-                          size={22}
+                          name="thumb-up"
+                          size={17}
                           color="white"
                         />
                       </View>
-                      <Text style={styles.buttonText}>Share</Text>
+                      <Text style={styles.buttonText}>Rate</Text>
                     </View>
                   </Button>
                 </Animated.View>
@@ -280,8 +289,8 @@ export default ProviderPeek;
 const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
-    fontSize: 10,
-    fontWeight: "500",
+    fontSize: 12,
+    fontWeight: "600",
   },
   buttonStyle: {
     display: "flex",
