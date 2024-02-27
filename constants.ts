@@ -4,6 +4,15 @@ export const DARK_INPUT_BG_COLOR_VALUE = "53, 57, 60";
 export const HIGHLIGHTER_BLUE_COLOR_VALUE = "11, 132, 255";
 export const DARK_INPUT_ICON_COLOR_VALUE = "162, 164, 171";
 
+export const IOS_LIGHT_BLUE = "#5fc9f8";
+export const IOS_YELLOW = "#fecb2e";
+export const IOS_ORANGE = "#fd9426";
+export const IOS_RED = "#fc3158";
+export const IOS_GREEN = "#53d769";
+export const IOS_BLUE = "#147efb";
+export const IOS_LIGHT_GRAY = "#8e8e93";
+export const IOS_GRAY = "#474747";
+
 export const FILTERS = {
   places: [
     { label: "All People & Places", value: null },

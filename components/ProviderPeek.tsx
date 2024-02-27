@@ -1,5 +1,5 @@
 import Provider from "../ui/Provider";
-import { View, Text, Modal, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Modal, StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 import Card from "../ui/Card";
 import Animated, {
@@ -14,6 +14,7 @@ import Animated, {
   ReduceMotion,
   runOnJS,
   useAnimatedReaction,
+  Extrapolation,
 } from "react-native-reanimated";
 import {
   Gesture,
@@ -22,13 +23,22 @@ import {
 } from "react-native-gesture-handler";
 import Button from "../ui/Button";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import useModalState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { PROVIDER_DATA } from "../constants";
-import { useEffect } from "react";
+import {
+  DARK_BG_COLOR_VALUE,
+  IOS_GREEN,
+  IOS_ORANGE,
+  IOS_RED,
+  PROVIDER_DATA,
+} from "../constants";
+import { useEffect, useMemo, useRef } from "react";
 import { SpringConfig } from "react-native-reanimated/lib/typescript/reanimated2/animation/springUtils";
+import BottomSheet from "@gorhom/bottom-sheet";
+import CircleButton from "../ui/CircleButton";
+import Spacer from "../ui/Spacer";
+import Backdrop from "../ui/Backdrop";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
@@ -41,6 +51,17 @@ const ProviderPeek = (props: IProviderPeekProps) => {
   const { setModalVisible, targetPosition } = props;
   const { handleModal } = useModalState();
   const insets = useSafeAreaInsets();
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const snapPoints = useMemo(() => [180, "100%"], []);
+
+  const handleOpenRateSheet = () => {
+    bottomSheetRef.current.snapToIndex(0);
+  };
+
+  const handleCloseRateSheet = () => {
+    bottomSheetRef.current.close();
+  };
 
   const topPosition = insets.top + 40;
 
@@ -55,7 +76,8 @@ const ProviderPeek = (props: IProviderPeekProps) => {
     const scale = interpolate(
       translateY.value,
       [insets.top, topPosition],
-      [0.99, 1]
+      [0.99, 1],
+      Extrapolation.CLAMP
     );
     return {
       transform: [{ scale }],
@@ -66,7 +88,8 @@ const ProviderPeek = (props: IProviderPeekProps) => {
     const scale = interpolate(
       translateY.value,
       [insets.top, topPosition],
-      [1, 0.9]
+      [1, 0.9],
+      Extrapolation.CLAMP
     );
     return {
       transform: [{ scale }],
@@ -153,7 +176,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
           bottom: 0,
         }}
       />
-      <TouchableOpacity
+      <CircleButton
         style={{
           position: "absolute",
           top: insets.top,
@@ -161,9 +184,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
           zIndex: 2,
         }}
         onPress={handleCloseModal}
-      >
-        <MaterialCommunityIcons name="close-circle" size={22} color="white" />
-      </TouchableOpacity>
+      />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GestureDetector gesture={pan}>
           <Animated.View
@@ -262,7 +283,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
                       <Text style={styles.buttonText}>Share</Text>
                     </View>
                   </Button>
-                  <Button uniform>
+                  <Button uniform onPress={handleOpenRateSheet}>
                     <View style={styles.buttonStyle}>
                       <View style={styles.iconContainer}>
                         <MaterialCommunityIcons
@@ -280,6 +301,73 @@ const ProviderPeek = (props: IProviderPeekProps) => {
           </Animated.View>
         </GestureDetector>
       </GestureHandlerRootView>
+      <BottomSheet
+        ref={bottomSheetRef}
+        handleIndicatorStyle={{ backgroundColor: "rgba(255,255,255,0.5)" }}
+        index={-1}
+        snapPoints={snapPoints}
+        topInset={insets.top}
+        enablePanDownToClose
+        backgroundStyle={styles.bottomSheetContainer}
+        backdropComponent={(props) => <Backdrop {...props} />}
+      >
+        <View style={styles.bottomSheetContainer}>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              paddingLeft: 15,
+              paddingRight: 15,
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: "600",
+                fontSize: 20,
+                color: "#fff",
+              }}
+            >
+              Rate Provider
+            </Text>
+            <CircleButton onPress={handleCloseRateSheet} />
+          </View>
+          <Spacer space={20} />
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
+              padding: 15,
+            }}
+          >
+            <Button color={IOS_GREEN} size="large">
+              <MaterialCommunityIcons
+                name="emoticon-happy"
+                size={30}
+                color="white"
+              />
+            </Button>
+            <Button color={IOS_ORANGE} size="large">
+              <MaterialCommunityIcons
+                name="emoticon-neutral"
+                size={30}
+                color="white"
+              />
+            </Button>
+            <Button color={IOS_RED} size="large">
+              <MaterialCommunityIcons
+                name="emoticon-angry"
+                size={30}
+                color="white"
+              />
+            </Button>
+          </View>
+        </View>
+      </BottomSheet>
     </Modal>
   );
 };
@@ -294,6 +382,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     display: "flex",
+    gap: 4,
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-between",
@@ -304,6 +393,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     height: 22,
     overflow: "hidden",
+  },
+  bottomSheetContainerHandle: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingTop: 15,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: `rgb(${DARK_BG_COLOR_VALUE})`,
+  },
+  bottomSheetContainer: {
+    flex: 1,
+    backgroundColor: `rgb(${DARK_BG_COLOR_VALUE})`,
   },
 });
 

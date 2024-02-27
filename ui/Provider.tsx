@@ -1,7 +1,7 @@
 import { View, StyleSheet, Text } from "react-native";
 import Spacer from "./Spacer";
 import Avatar from "./Avatar";
-import { VERTICAL_PADDING } from "../constants";
+import { IOS_GREEN, IOS_RED, VERTICAL_PADDING } from "../constants";
 import Chip from "./Chip";
 import { AntDesign } from "@expo/vector-icons";
 import Divider from "./Divider";
@@ -46,6 +46,7 @@ const Provider = (props: IProviderProps) => {
       {fullCard && (
         <>
           <Divider noSpacing />
+          <Spacer />
           <FlexContainer gap={20} flexDirection="row">
             <View>
               <Text style={styles.subTitle}>Availability</Text>
@@ -75,6 +76,7 @@ const Provider = (props: IProviderProps) => {
               </View>
             </View>
           </FlexContainer>
+          <Spacer />
           <Divider noSpacing />
         </>
       )}
@@ -91,7 +93,7 @@ const Provider = (props: IProviderProps) => {
           <Text style={styles.subTitle}>Specialties</Text>
           <View style={styles.flexContainer}>
             {specialties.map((specialty, i) => (
-              <Chip border>
+              <Chip key={i} border>
                 <Text style={styles.subText}>{specialty}</Text>
               </Chip>
             ))}
@@ -115,17 +117,17 @@ const AcceptingPatients = ({
     <>
       {acceptNewPatients ? (
         <View style={[styles.flexContainer, { alignItems: "center" }]}>
-          <AntDesign name="checkcircle" size={14} color="#53d769" />
+          <AntDesign name="checkcircle" size={14} color={IOS_GREEN} />
           <Text
-            style={[styles.subText, { fontWeight: "600", color: "#53d769" }]}
+            style={[styles.subText, { fontWeight: "600", color: IOS_GREEN }]}
           >
             Accepting
           </Text>
         </View>
       ) : (
         <View style={[styles.flexContainer, { alignItems: "center" }]}>
-          <AntDesign name="checkcircle" size={14} color="red" />
-          <Text style={[styles.subText, { fontWeight: "600" }]}>
+          <AntDesign name="checkcircle" size={14} color={IOS_RED} />
+          <Text style={[styles.subText, { fontWeight: "600", color: IOS_RED }]}>
             Unavailable
           </Text>
         </View>
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
   textIconFlexContainer: {
     display: "flex",
     flexDirection: "row",
-    gap: 2,
+    gap: 4,
   },
 });
 

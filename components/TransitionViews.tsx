@@ -11,12 +11,13 @@ import Divider from "../ui/Divider";
 import { STANDARD_PADDING } from "../constants";
 
 import ProviderList from "./ProviderList";
+import Backdrop from "../ui/Backdrop";
 
 const TransitionViews = () => {
   const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const snapPoints = useMemo(() => ["25%", "50%", "100%"], []);
+  const snapPoints = useMemo(() => ["15%", "50%", "100%"], []);
 
   const handleSheetChanges = useCallback((index: number) => {
     bottomSheetRef.current.snapToIndex(index);
@@ -52,6 +53,7 @@ const TransitionViews = () => {
       index={1}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
+      backdropComponent={(props) => <Backdrop {...props} />}
     >
       <StickyHeader extendSheet={extendSheet} />
       <ProviderList />

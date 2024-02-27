@@ -1,15 +1,33 @@
 import { Pressable, PressableProps } from "react-native";
+import { IOS_BLUE, IOS_GRAY } from "../constants";
 
 interface IButtonProps extends PressableProps {
   variant?: "primary" | "secondary";
   uniform?: boolean;
   sx?: PressableProps["style"];
+  color?: string;
+  active?: boolean;
+  width?: number;
+  height?: number;
+  size?: "small" | "medium" | "large";
 }
 
 const Button = (props: IButtonProps) => {
-  const { variant, uniform, sx } = props;
+  const { variant, uniform, sx, color, active, width, height, size } = props;
 
-  const buttonColor = variant === "primary" ? "#007AFF" : "#474747";
+  const buttonSize = props.size
+    ? props.size === "small"
+      ? 25
+      : props.size === "medium"
+      ? 40
+      : 50
+    : 50;
+
+  const buttonColor = color
+    ? color
+    : variant === "primary"
+    ? IOS_BLUE
+    : IOS_GRAY;
 
   return (
     <Pressable
@@ -18,8 +36,14 @@ const Button = (props: IButtonProps) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: uniform ? 65 : "auto",
-          height: uniform ? 45 : "auto",
+          width: size ? buttonSize : width ? width : uniform ? 65 : undefined,
+          height: size
+            ? buttonSize
+            : height
+            ? height
+            : uniform
+            ? 50
+            : undefined,
           backgroundColor: pressed ? "#222222" : buttonColor,
           shadowColor: "#000",
           shadowOffset: {
@@ -34,8 +58,9 @@ const Button = (props: IButtonProps) => {
           paddingLeft: uniform ? 0 : 10,
           paddingRight: uniform ? 0 : 10,
           borderRadius: 10,
+          opacity: active ? 0.5 : 1,
+          sx,
         },
-        { sx },
       ]}
       {...props}
     >
