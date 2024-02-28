@@ -1,8 +1,36 @@
-import { TouchableOpacity, TouchableOpacityProps, View } from "react-native";
+import {
+  TouchableOpacity,
+  TouchableOpacityProps,
+  View,
+  Text,
+} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { IOS_GRAY, IOS_LIGHT_GRAY } from "../constants";
+import { IOS_GRAY, IOS_TEXT_GRAY } from "../constants";
+import Spacer from "./Spacer";
 
-const CircleButton = (props: TouchableOpacityProps) => {
+interface IButtonProps extends TouchableOpacityProps {
+  color?: string;
+  width?: number;
+  height?: number;
+  size?: "small" | "medium" | "large";
+  children?: React.ReactNode;
+  title?: string;
+  subTitle?: string;
+}
+
+const CircleButton = (props: IButtonProps) => {
+  const { color, width, height, size, children, title, subTitle } = props;
+
+  const buttonSize = props.size
+    ? props.size === "small"
+      ? 25
+      : props.size === "medium"
+      ? 40
+      : 50
+    : 50;
+
+  const buttonColor = color ? color : IOS_GRAY;
+
   return (
     <TouchableOpacity {...props}>
       <View
@@ -10,21 +38,55 @@ const CircleButton = (props: TouchableOpacityProps) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: IOS_GRAY,
-          height: 22,
-          width: 22,
-          borderRadius: 100,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          elevation: 5,
         }}
       >
-        <MaterialCommunityIcons name="close" size={15} color="white" />
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: buttonColor ? buttonColor : IOS_GRAY,
+            height: size ? buttonSize : width ? width : 22,
+            width: size ? buttonSize : height ? height : 22,
+            borderRadius: 100,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+        >
+          {children ? (
+            children
+          ) : (
+            <MaterialCommunityIcons name="close" size={15} color="white" />
+          )}
+        </View>
+        <Spacer space={6} />
+        {title && (
+          <Text
+            style={{
+              color: "white",
+              fontSize: 11,
+              fontWeight: "600",
+              width: 75,
+            }}
+            numberOfLines={1}
+          >
+            {title}
+          </Text>
+        )}
+        <Spacer space={4} />
+        {subTitle && (
+          <Text
+            style={{ color: IOS_TEXT_GRAY, fontSize: 10, fontWeight: "600" }}
+          >
+            {subTitle}
+          </Text>
+        )}
       </View>
     </TouchableOpacity>
   );

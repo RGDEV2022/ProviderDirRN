@@ -1,7 +1,12 @@
 import { View, StyleSheet, Text } from "react-native";
 import Spacer from "./Spacer";
 import Avatar from "./Avatar";
-import { IOS_GREEN, IOS_RED, VERTICAL_PADDING } from "../constants";
+import {
+  IOS_GREEN,
+  IOS_RED,
+  IOS_TEXT_GRAY,
+  VERTICAL_PADDING,
+} from "../constants";
 import Chip from "./Chip";
 import { AntDesign } from "@expo/vector-icons";
 import Divider from "./Divider";
@@ -68,7 +73,7 @@ const Provider = (props: IProviderProps) => {
                 <MaterialCommunityIcons
                   name="map-marker-distance"
                   size={14}
-                  color="#8e8e93"
+                  color={IOS_TEXT_GRAY}
                 />
                 <Text style={[styles.subText, { fontWeight: "600" }]}>
                   1.9 mi
@@ -157,12 +162,12 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#8e8e93",
+    color: IOS_TEXT_GRAY,
     marginBottom: 2,
   },
   address: {
     fontSize: 12,
-    color: "#8e8e93",
+    color: IOS_TEXT_GRAY,
   },
   subText: {
     fontSize: 14,

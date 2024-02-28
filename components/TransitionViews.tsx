@@ -12,6 +12,7 @@ import { STANDARD_PADDING } from "../constants";
 
 import ProviderList from "./ProviderList";
 import Backdrop from "../ui/Backdrop";
+import Favorites from "./Favorites";
 
 const TransitionViews = () => {
   const insets = useSafeAreaInsets();
@@ -55,16 +56,19 @@ const TransitionViews = () => {
       onChange={handleSheetChanges}
       backdropComponent={(props) => <Backdrop {...props} />}
     >
-      <StickyHeader extendSheet={extendSheet} />
-      <ProviderList />
+      <StickyHeader extendSheet={extendSheet} showFilter={false} />
+      <Favorites />
+      {/* <ProviderList /> */}
     </BottomSheet>
   );
 };
 
 const StickyHeader = ({
   extendSheet,
+  showFilter = true,
 }: {
   extendSheet: (type: "full" | "small") => void;
+  showFilter?: boolean;
 }) => {
   return (
     <View>
@@ -86,8 +90,12 @@ const StickyHeader = ({
           <Avatar type="user" size="medium" />
         </View>
       </View>
-      <FilterBar />
-      <Divider />
+      {showFilter && (
+        <>
+          <FilterBar />
+          <Divider />
+        </>
+      )}
     </View>
   );
 };

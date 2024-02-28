@@ -2,15 +2,24 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { DARK_CARD_BG_COLOR_VALUE } from "../constants";
 
-const Card = ({ children }: { children?: React.ReactNode }) => {
-  return <View style={styles.card}>{children}</View>;
+const Card = ({
+  children,
+  noPadding,
+}: {
+  children?: React.ReactNode;
+  noPadding?: boolean;
+}) => {
+  return (
+    <View style={[styles.card, { padding: noPadding ? 0 : 15 }]}>
+      {children}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: `rgb(${DARK_CARD_BG_COLOR_VALUE})`,
     borderRadius: 8,
-    padding: 15,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
