@@ -13,6 +13,8 @@ import { STANDARD_PADDING } from "../constants";
 import ProviderList from "./ProviderList";
 import Backdrop from "../ui/Backdrop";
 import Favorites from "./Favorites";
+import Recents from "./Recents";
+import Home from "./Home";
 
 const TransitionViews = () => {
   const insets = useSafeAreaInsets();
@@ -57,7 +59,7 @@ const TransitionViews = () => {
       backdropComponent={(props) => <Backdrop {...props} />}
     >
       <StickyHeader extendSheet={extendSheet} showFilter={false} />
-      <Favorites />
+      <Home />
       {/* <ProviderList /> */}
     </BottomSheet>
   );

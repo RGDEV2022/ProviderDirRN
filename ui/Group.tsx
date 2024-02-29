@@ -12,7 +12,7 @@ const Group = ({
   onPressMore: () => void;
 }) => {
   return (
-    <View>
+    <View style={{ width: "100%", height: "auto" }}>
       <View
         style={{
           paddingTop: STANDARD_PADDING + 5,

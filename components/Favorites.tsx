@@ -6,9 +6,13 @@ import CircleButton from "../ui/CircleButton";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Spacer from "../ui/Spacer";
 
-const Favorites = () => {
+type TFavorites = {
+  onPressMore?: () => void;
+};
+
+const Favorites = ({ onPressMore }: TFavorites) => {
   return (
-    <Group title="Favorites" onPressMore={() => {}}>
+    <Group title="Favorites" onPressMore={onPressMore}>
       <Spacer space={8} />
       <ScrollView
         horizontal

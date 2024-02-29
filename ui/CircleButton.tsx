@@ -25,14 +25,14 @@ const CircleButton = (props: IButtonProps) => {
     ? props.size === "small"
       ? 25
       : props.size === "medium"
-      ? 40
-      : 50
+      ? 35
+      : 45
     : 50;
 
   const buttonColor = color ? color : IOS_GRAY;
 
   return (
-    <TouchableOpacity {...props}>
+    <TouchableOpacity activeOpacity={0.7} {...props}>
       <View
         style={{
           display: "flex",
@@ -70,8 +70,8 @@ const CircleButton = (props: IButtonProps) => {
           <Text
             style={{
               color: "white",
-              fontSize: 11,
-              fontWeight: "600",
+              fontSize: 12,
+              fontWeight: "400",
               width: 75,
             }}
             numberOfLines={1}
@@ -82,7 +82,7 @@ const CircleButton = (props: IButtonProps) => {
         <Spacer space={4} />
         {subTitle && (
           <Text
-            style={{ color: IOS_TEXT_GRAY, fontSize: 10, fontWeight: "600" }}
+            style={{ color: IOS_TEXT_GRAY, fontSize: 11, fontWeight: "600" }}
           >
             {subTitle}
           </Text>
