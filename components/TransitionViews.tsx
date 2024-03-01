@@ -58,14 +58,14 @@ const TransitionViews = () => {
       onChange={handleSheetChanges}
       backdropComponent={(props) => <Backdrop {...props} />}
     >
-      <StickyHeader extendSheet={extendSheet} showFilter={false} />
+      <Header extendSheet={extendSheet} showFilter={false} />
       <Home />
       {/* <ProviderList /> */}
     </BottomSheet>
   );
 };
 
-const StickyHeader = ({
+const Header = ({
   extendSheet,
   showFilter = true,
 }: {

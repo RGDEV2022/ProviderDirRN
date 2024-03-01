@@ -10,6 +10,7 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Spacer from "../ui/Spacer";
 import Divider from "../ui/Divider";
+import MenuItem from "../ui/MenuItem";
 
 type TFavorites = {
   onPressMore?: () => void;
@@ -32,59 +33,26 @@ const Recents = ({ onPressMore }: TFavorites) => {
             .fill(0)
             .map((_, i) => (
               <View>
-                <RecentItem title={`Hospital Name - ${i}`} subTitle="1.2 mi" />
+                <MenuItem
+                  title={`Hospital Name - ${i}`}
+                  subTitle="1.2 mi"
+                  startAdornment={{
+                    component: (
+                      <MaterialCommunityIcons
+                        name="pin"
+                        size={16}
+                        color="white"
+                      />
+                    ),
+                    color: IOS_RED,
+                  }}
+                />
                 {i < 5 - 1 && <Divider noSpacing />}
               </View>
             ))}
         </Card>
       </View>
     </Group>
-  );
-};
-
-const RecentItem = ({
-  title,
-  subTitle,
-  onPress,
-}: {
-  title: string;
-  subTitle: string;
-  onPress?: () => void;
-}) => {
-  return (
-    <Pressable
-      style={({ pressed }) => [
-        {
-          display: "flex",
-          flexDirection: "row",
-          gap: 10,
-          backgroundColor: pressed ? IOS_GRAY : "transparent",
-          padding: 12,
-        },
-      ]}
-    >
-      <View
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: 100,
-          width: 25,
-          height: 25,
-          backgroundColor: IOS_RED,
-        }}
-      >
-        <MaterialCommunityIcons name="pin" size={16} color="white" />
-      </View>
-      <View>
-        <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }}>
-          {title}
-        </Text>
-        <Text style={{ color: IOS_TEXT_GRAY, fontSize: 12, fontWeight: "600" }}>
-          {subTitle}
-        </Text>
-      </View>
-    </Pressable>
   );
 };
 

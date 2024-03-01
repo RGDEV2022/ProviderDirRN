@@ -3,12 +3,21 @@ import Recents from "./Recents";
 import { View, Text, StyleSheet } from "react-native";
 import useModalState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DARK_BG_COLOR_VALUE } from "../constants";
-import { useCallback, useMemo, useRef, useState } from "react";
+import {
+  DARK_BG_COLOR_VALUE,
+  IOS_ORANGE,
+  STANDARD_PADDING,
+} from "../constants";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import CircleButton from "../ui/CircleButton";
 import Spacer from "../ui/Spacer";
 import Backdrop from "../ui/Backdrop";
+import Group from "../ui/Group";
+import Card from "../ui/Card";
+import MenuItem from "../ui/MenuItem";
+import Divider from "../ui/Divider";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const Home = () => {
   const [currentModalTitle, setCurrentModalTitle] = useState("");
@@ -76,11 +85,11 @@ const Home = () => {
                 color: "#fff",
               }}
             >
-              Rate Provider
+              {currentModalTitle}
             </Text>
             <CircleButton onPress={handleCloseRateSheet} />
           </View>
-          <Spacer space={20} />
+          <Spacer space={15} />
           <View
             style={{
               display: "flex",
@@ -88,9 +97,36 @@ const Home = () => {
               alignItems: "center",
               justifyContent: "center",
               gap: 10,
-              padding: 15,
+              paddingLeft: STANDARD_PADDING,
+              paddingRight: STANDARD_PADDING,
             }}
-          ></View>
+          >
+            <Group noHeader>
+              <Card sx={{ display: "flex", flexDirection: "column" }} noPadding>
+                {Array(5)
+                  .fill(0)
+                  .map((_, i) => (
+                    <View>
+                      <MenuItem
+                        title={`Hospital Name - ${i}`}
+                        subTitle="1.2 mi"
+                        startAdornment={{
+                          component: (
+                            <MaterialCommunityIcons
+                              name="pin"
+                              size={16}
+                              color="white"
+                            />
+                          ),
+                          color: IOS_ORANGE,
+                        }}
+                      />
+                      {i < 5 - 1 && <Divider noSpacing />}
+                    </View>
+                  ))}
+              </Card>
+            </Group>
+          </View>
         </View>
       </BottomSheetModal>
     </>
