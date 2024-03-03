@@ -39,6 +39,8 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import CircleButton from "../ui/CircleButton";
 import Spacer from "../ui/Spacer";
 import Backdrop from "../ui/Backdrop";
+import Rate from "./Rate";
+import ReBottomSheet from "../ui/ReBottomSheet";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
@@ -181,7 +183,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
           position: "absolute",
           top: insets.top,
           right: 15,
-          zIndex: 2,
+          zIndex: 1,
         }}
         onPress={handleCloseModal}
       />
@@ -301,15 +303,11 @@ const ProviderPeek = (props: IProviderPeekProps) => {
           </Animated.View>
         </GestureDetector>
       </GestureHandlerRootView>
-      <BottomSheet
-        ref={bottomSheetRef}
-        handleIndicatorStyle={{ backgroundColor: "rgba(255,255,255,0.5)" }}
+      <ReBottomSheet
+        innerRef={bottomSheetRef}
         index={-1}
         snapPoints={snapPoints}
-        topInset={insets.top}
-        enablePanDownToClose
-        backgroundStyle={styles.bottomSheetContainer}
-        backdropComponent={(props) => <Backdrop {...props} />}
+        containerStyle={{ zIndex: 2 }}
       >
         <View style={styles.bottomSheetContainer}>
           <View
@@ -334,40 +332,9 @@ const ProviderPeek = (props: IProviderPeekProps) => {
             <CircleButton onPress={handleCloseRateSheet} />
           </View>
           <Spacer space={20} />
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 10,
-              padding: 15,
-            }}
-          >
-            <Button color={IOS_GREEN} size="large">
-              <MaterialCommunityIcons
-                name="emoticon-happy"
-                size={30}
-                color="white"
-              />
-            </Button>
-            <Button color={IOS_ORANGE} size="large">
-              <MaterialCommunityIcons
-                name="emoticon-neutral"
-                size={30}
-                color="white"
-              />
-            </Button>
-            <Button color={IOS_RED} size="large">
-              <MaterialCommunityIcons
-                name="emoticon-angry"
-                size={30}
-                color="white"
-              />
-            </Button>
-          </View>
+          <Rate />
         </View>
-      </BottomSheet>
+      </ReBottomSheet>
     </Modal>
   );
 };

@@ -6,10 +6,14 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 
-const Backdrop = ({ animatedIndex, style }: BottomSheetBackdropProps) => {
+interface IBackdropProps extends BottomSheetBackdropProps {
+  offset?: number;
+}
+
+const Backdrop = ({ animatedIndex, offset = 1.5, style }: IBackdropProps) => {
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
-      animatedIndex.value - 1.5,
+      animatedIndex.value - offset,
       [0, 1],
       [0, 1],
       Extrapolation.CLAMP

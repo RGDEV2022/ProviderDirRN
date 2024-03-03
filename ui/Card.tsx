@@ -1,26 +1,41 @@
 import React from "react";
-import { View, StyleSheet, ViewProps } from "react-native";
+import {
+  StyleSheet,
+  ViewProps,
+  TouchableOpacity,
+  TouchableOpacityProps,
+} from "react-native";
 import { DARK_CARD_BG_COLOR_VALUE } from "../constants";
 
-const Card = ({
-  children,
-  noPadding,
-  sx,
-}: {
+interface ICardProps extends TouchableOpacityProps {
   children?: React.ReactNode;
   noPadding?: boolean;
   sx?: ViewProps["style"];
-}) => {
+  color?: string;
+}
+
+const Card = (props: ICardProps) => {
+  const { children, noPadding, sx, color } = props;
   return (
-    <View style={[styles.card, { padding: noPadding ? 0 : 15 }, sx]}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={[
+        styles.card,
+        {
+          padding: noPadding ? 0 : 15,
+          backgroundColor: color ? color : `rgb(${DARK_CARD_BG_COLOR_VALUE})`,
+        },
+        sx,
+      ]}
+      {...props}
+    >
       {children}
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: `rgb(${DARK_CARD_BG_COLOR_VALUE})`,
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: {

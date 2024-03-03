@@ -13,6 +13,9 @@ export const IOS_BLUE = "#147efb";
 export const IOS_LIGHT_GRAY = "#8e8e93";
 export const IOS_GRAY = "#474747";
 export const IOS_TEXT_GRAY = "#8e8e93";
+export const IOS_PRESSED_GRAY = "#222222";
+export const IOS_ICON_GRAY = "#9b9f9f";
+export const IOS_BUTTON_GRAY = "#1f282a";
 
 export const FILTERS = {
   places: [

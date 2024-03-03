@@ -1,6 +1,6 @@
 import Favorites from "./Favorites";
 import Recents from "./Recents";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Modal } from "react-native";
 import useModalState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -9,7 +9,7 @@ import {
   STANDARD_PADDING,
 } from "../constants";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import CircleButton from "../ui/CircleButton";
 import Spacer from "../ui/Spacer";
 import Backdrop from "../ui/Backdrop";
@@ -18,12 +18,25 @@ import Card from "../ui/Card";
 import MenuItem from "../ui/MenuItem";
 import Divider from "../ui/Divider";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Prescriptions from "./Prescriptions";
+import Animated, {
+  Extrapolation,
+  FadeIn,
+  FadeOut,
+  interpolate,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+} from "react-native-reanimated";
+import ReBottomSheet from "../ui/ReBottomSheet";
 
 const Home = () => {
+  const [modalVisible, setModalVisible] = useState(false);
   const [currentModalTitle, setCurrentModalTitle] = useState("");
-  const { handleModal } = useModalState();
   const insets = useSafeAreaInsets();
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const { handleModal } = useModalState();
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const animatedIndex = useSharedValue(0);
 
   const snapPoints = useMemo(() => ["100%"], []);
 
@@ -33,102 +46,138 @@ const Home = () => {
 
   const handleOpenRecentsSheet = () => {
     setCurrentModalTitle("Recents");
-    bottomSheetRef.current?.present();
-    handleModal(true);
-    bottomSheetRef.current.snapToIndex(0);
+    setModalVisible(true);
   };
 
   const handleOpenFavoritesSheet = () => {
     setCurrentModalTitle("Favorites");
-    bottomSheetRef.current?.present();
-    handleModal(true);
-    bottomSheetRef.current.snapToIndex(0);
+    setModalVisible(true);
   };
 
-  const handleSheetChanges = useCallback((index: number) => {
-    index === -1 && handleModal(false);
+  const handleOnChange = useCallback((index: number) => {
+    if (index === -1) {
+      handleModal(false);
+      setModalVisible(false);
+    }
   }, []);
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      animatedIndex.value,
+      [-1, 0], //range of the inputs
+      [0, 0.5], //range of the outputs
+      Extrapolation.CLAMP
+    ),
+  }));
+
+  const containerStyle = useMemo(
+    () => [
+      {
+        backgroundColor: "#000",
+      },
+      containerAnimatedStyle,
+    ],
+    [containerAnimatedStyle]
+  );
 
   return (
     <>
-      <View>
+      <BottomSheetScrollView>
         <Favorites onPressMore={handleOpenFavoritesSheet} />
         <Recents onPressMore={handleOpenRecentsSheet} />
-      </View>
+        <Prescriptions onPressMore={handleOpenRecentsSheet} />
+      </BottomSheetScrollView>
 
-      <BottomSheetModal
-        ref={bottomSheetRef}
-        handleIndicatorStyle={{ backgroundColor: "rgba(255,255,255,0.5)" }}
-        index={0}
-        snapPoints={snapPoints}
-        topInset={insets.top}
-        enablePanDownToClose
-        backgroundStyle={styles.bottomSheetContainer}
-        backdropComponent={(props) => <Backdrop {...props} />}
-        onChange={handleSheetChanges}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        statusBarTranslucent={true}
       >
-        <View style={styles.bottomSheetContainer}>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              width: "100%",
-              paddingLeft: 15,
-              paddingRight: 15,
-            }}
-          >
-            <Text
+        <View
+          style={{
+            display: "flex",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+        >
+          <Animated.View style={[containerStyle, { flex: 1 }]} />
+        </View>
+        <ReBottomSheet
+          innerRef={bottomSheetRef}
+          index={0}
+          snapPoints={snapPoints}
+          onChange={handleOnChange}
+          animatedIndex={animatedIndex}
+        >
+          <View style={styles.bottomSheetContainer}>
+            <View
               style={{
-                fontWeight: "600",
-                fontSize: 20,
-                color: "#fff",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+                paddingLeft: 15,
+                paddingRight: 15,
               }}
             >
-              {currentModalTitle}
-            </Text>
-            <CircleButton onPress={handleCloseRateSheet} />
+              <Text
+                style={{
+                  fontWeight: "600",
+                  fontSize: 20,
+                  color: "#fff",
+                }}
+              >
+                {currentModalTitle}
+              </Text>
+              <CircleButton onPress={handleCloseRateSheet} />
+            </View>
+            <Spacer space={15} />
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                paddingLeft: STANDARD_PADDING,
+                paddingRight: STANDARD_PADDING,
+              }}
+            >
+              <Group noHeader>
+                <Card
+                  sx={{ display: "flex", flexDirection: "column" }}
+                  noPadding
+                >
+                  {Array(5)
+                    .fill(0)
+                    .map((_, i) => (
+                      <View>
+                        <MenuItem
+                          title={`Hospital Name - ${i}`}
+                          subTitle="1.2 mi"
+                          startAdornment={{
+                            component: (
+                              <MaterialCommunityIcons
+                                name="pin"
+                                size={16}
+                                color="white"
+                              />
+                            ),
+                            color: IOS_ORANGE,
+                          }}
+                        />
+                        {i < 5 - 1 && <Divider noSpacing />}
+                      </View>
+                    ))}
+                </Card>
+              </Group>
+            </View>
           </View>
-          <Spacer space={15} />
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 10,
-              paddingLeft: STANDARD_PADDING,
-              paddingRight: STANDARD_PADDING,
-            }}
-          >
-            <Group noHeader>
-              <Card sx={{ display: "flex", flexDirection: "column" }} noPadding>
-                {Array(5)
-                  .fill(0)
-                  .map((_, i) => (
-                    <View>
-                      <MenuItem
-                        title={`Hospital Name - ${i}`}
-                        subTitle="1.2 mi"
-                        startAdornment={{
-                          component: (
-                            <MaterialCommunityIcons
-                              name="pin"
-                              size={16}
-                              color="white"
-                            />
-                          ),
-                          color: IOS_ORANGE,
-                        }}
-                      />
-                      {i < 5 - 1 && <Divider noSpacing />}
-                    </View>
-                  ))}
-              </Card>
-            </Group>
-          </View>
-        </View>
-      </BottomSheetModal>
+        </ReBottomSheet>
+      </Modal>
     </>
   );
 };

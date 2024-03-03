@@ -15,9 +15,14 @@ import Backdrop from "../ui/Backdrop";
 import Favorites from "./Favorites";
 import Recents from "./Recents";
 import Home from "./Home";
+import ReBottomSheet from "../ui/ReBottomSheet";
+import { SharedValue } from "react-native-reanimated";
 
-const TransitionViews = () => {
-  const insets = useSafeAreaInsets();
+const TransitionViews = ({
+  animatedIndex,
+}: {
+  animatedIndex?: SharedValue<number>;
+}) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const snapPoints = useMemo(() => ["15%", "50%", "100%"], []);
@@ -30,9 +35,7 @@ const TransitionViews = () => {
     bottomSheetRef.current.snapToIndex(type === "full" ? 2 : 1);
 
   return (
-    <BottomSheet
-      topInset={insets.top}
-      handleIndicatorStyle={{ backgroundColor: "rgba(255,255,255,0.5)" }}
+    <ReBottomSheet
       backgroundComponent={({ style }) => (
         <View
           style={[
@@ -52,16 +55,17 @@ const TransitionViews = () => {
           />
         </View>
       )}
-      ref={bottomSheetRef}
+      innerRef={bottomSheetRef}
       index={1}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
       backdropComponent={(props) => <Backdrop {...props} />}
+      animatedIndex={animatedIndex}
     >
       <Header extendSheet={extendSheet} showFilter={false} />
       <Home />
       {/* <ProviderList /> */}
-    </BottomSheet>
+    </ReBottomSheet>
   );
 };
 

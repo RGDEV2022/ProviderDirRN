@@ -1,5 +1,5 @@
 import { Pressable, PressableProps } from "react-native";
-import { IOS_BLUE, IOS_GRAY } from "../constants";
+import { IOS_BLUE, IOS_GRAY, IOS_PRESSED_GRAY } from "../constants";
 
 interface IButtonProps extends PressableProps {
   variant?: "primary" | "secondary";
@@ -44,7 +44,7 @@ const Button = (props: IButtonProps) => {
             : uniform
             ? 50
             : undefined,
-          backgroundColor: pressed ? "#222222" : buttonColor,
+          backgroundColor: pressed ? IOS_PRESSED_GRAY : buttonColor,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
