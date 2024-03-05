@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import MapView from "react-native-maps";
+import React, { useMemo, useState } from "react";
+import MapView, { Marker, UserLocationChangeEvent } from "react-native-maps";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import TransitionViews from "../components/TransitionViews";
 import TransitionWrapper from "../components/TransitionWrapper";
@@ -18,11 +18,23 @@ import LottieView from "lottie-react-native";
 
 export default function Map() {
   const animatedIndex = useSharedValue(0);
+  const [userLocation, setUserLocation] = useState(null);
+
+  const onUserLocationChange = (location: UserLocationChangeEvent) => {
+    setUserLocation(location);
+  };
+
   return (
     <>
       <View style={styles.container}>
         <TransitionWrapper>
-          <MapView style={styles.map} userInterfaceStyle="dark" />
+          <MapView
+            style={styles.map}
+            userInterfaceStyle="dark"
+            showsUserLocation={true}
+            followsUserLocation={true}
+            onUserLocationChange={onUserLocationChange}
+          />
           <FloatingButtonGroup animatedIndex={animatedIndex} />
           <TransitionViews animatedIndex={animatedIndex} />
         </TransitionWrapper>

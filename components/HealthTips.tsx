@@ -11,7 +11,6 @@ import Spacer from "../ui/Spacer";
 import LottieView from "lottie-react-native";
 import { BlurView } from "expo-blur";
 import Animated from "react-native-reanimated";
-import { useNavigation } from "@react-navigation/native";
 
 type THealthTips = {
   onPressMore?: () => void;
@@ -73,8 +72,6 @@ const HealthTipItem = ({
   anim: THealthTipItem;
   color: string;
 }) => {
-  const navigation = useNavigation();
-
   return (
     <Card color={color} noPadding sx={{ height: 170, width: 160 }}>
       <View style={{ display: "flex", flex: 1 }}>
@@ -91,7 +88,6 @@ const HealthTipItem = ({
             zIndex: -1,
             flex: 1,
           }}
-          sharedTransitionTag="healthTipAnim"
         >
           <LottieView
             autoPlay
