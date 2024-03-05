@@ -1,7 +1,11 @@
 import { StatusBar } from "expo-status-bar";
-import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Map from "./screens/Map";
+import PopOverScreen from "./screens/PopOverScreen";
+import {
+  createStaticNavigation,
+  NavigationContainer,
+} from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
@@ -12,16 +16,17 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
+          <Stack.Navigator>
             <Stack.Screen
-              options={{ headerShown: false }}
               name="Home"
               component={Map}
+              options={{ header: () => null }}
             />
+            <Stack.Screen name="Details" component={PopOverScreen} />
           </Stack.Navigator>
-          <StatusBar style="auto" />
         </NavigationContainer>
       </BottomSheetModalProvider>
+      <StatusBar style="light" />
     </GestureHandlerRootView>
   );
 }

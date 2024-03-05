@@ -12,6 +12,7 @@ export const IOS_GREEN = "#53d769";
 export const IOS_BLUE = "#147efb";
 export const IOS_LIGHT_GRAY = "#8e8e93";
 export const IOS_GRAY = "#474747";
+export const IOS_PURPLE = "#bf5af2";
 export const IOS_TEXT_GRAY = "#8e8e93";
 export const IOS_PRESSED_GRAY = "#222222";
 export const IOS_ICON_GRAY = "#9b9f9f";

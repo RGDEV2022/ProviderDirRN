@@ -29,6 +29,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import ReBottomSheet from "../ui/ReBottomSheet";
+import HealthTips from "./HealthTips";
 
 const Home = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -82,10 +83,14 @@ const Home = () => {
 
   return (
     <>
-      <BottomSheetScrollView>
+      <BottomSheetScrollView
+        contentContainerStyle={{ paddingBottom: insets.bottom }}
+        showsVerticalScrollIndicator={false}
+      >
         <Favorites onPressMore={handleOpenFavoritesSheet} />
         <Recents onPressMore={handleOpenRecentsSheet} />
         <Prescriptions onPressMore={handleOpenRecentsSheet} />
+        <HealthTips onPressMore={handleOpenRecentsSheet} />
       </BottomSheetScrollView>
 
       <Modal

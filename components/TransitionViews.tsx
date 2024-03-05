@@ -41,7 +41,7 @@ const TransitionViews = ({
           style={[
             style,
             {
-              backgroundColor: `rgba(${DARK_BG_COLOR_VALUE},0.9)`,
+              backgroundColor: `rgba(${DARK_BG_COLOR_VALUE},0.8)`,
               borderTopLeftRadius: 15,
               borderTopRightRadius: 15,
               overflow: "hidden",
@@ -59,7 +59,9 @@ const TransitionViews = ({
       index={1}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
-      backdropComponent={(props) => <Backdrop {...props} />}
+      backdropComponent={(props) => (
+        <Backdrop appearAfterIndex={1} {...props} />
+      )}
       animatedIndex={animatedIndex}
     >
       <Header extendSheet={extendSheet} showFilter={false} />

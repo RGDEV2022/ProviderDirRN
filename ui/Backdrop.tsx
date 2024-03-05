@@ -8,9 +8,15 @@ import Animated, {
 
 interface IBackdropProps extends BottomSheetBackdropProps {
   offset?: number;
+  appearAfterIndex?: number;
 }
 
-const Backdrop = ({ animatedIndex, offset = 1.5, style }: IBackdropProps) => {
+const Backdrop = ({
+  animatedIndex,
+  offset = 1.5,
+  appearAfterIndex,
+  style,
+}: IBackdropProps) => {
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       animatedIndex.value - offset,
@@ -18,6 +24,7 @@ const Backdrop = ({ animatedIndex, offset = 1.5, style }: IBackdropProps) => {
       [0, 1],
       Extrapolation.CLAMP
     ),
+    display: animatedIndex.value <= appearAfterIndex ? "none" : "flex",
   }));
 
   const containerStyle = useMemo(

@@ -12,10 +12,11 @@ interface ICardProps extends TouchableOpacityProps {
   noPadding?: boolean;
   sx?: ViewProps["style"];
   color?: string;
+  onPress?: () => void;
 }
 
 const Card = (props: ICardProps) => {
-  const { children, noPadding, sx, color } = props;
+  const { children, noPadding, sx, color, onPress } = props;
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -27,6 +28,7 @@ const Card = (props: ICardProps) => {
         },
         sx,
       ]}
+      disabled={!onPress}
       {...props}
     >
       {children}
