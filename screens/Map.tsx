@@ -1,6 +1,10 @@
-import React, { useMemo, useState } from "react";
-import MapView, { Marker, UserLocationChangeEvent } from "react-native-maps";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import MapView, {
+  Marker,
+  UserLocationChangeEvent,
+  MapMarkerProps,
+} from "react-native-maps";
+import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
 import TransitionViews from "../components/TransitionViews";
 import TransitionWrapper from "../components/TransitionWrapper";
 import { IOS_BUTTON_GRAY, IOS_ICON_GRAY } from "../constants";
@@ -9,19 +13,118 @@ import Animated, {
   Extrapolation,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { FontAwesome6, FontAwesome5 } from "@expo/vector-icons";
+import {
+  FontAwesome6,
+  FontAwesome5,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import Divider from "../ui/Divider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SharedValue, useSharedValue } from "react-native-reanimated";
 import Spacer from "../ui/Spacer";
 import LottieView from "lottie-react-native";
+import * as Location from "expo-location";
+import { useMutation } from "react-query";
+import {
+  TLocationCoords,
+  TProviderSearch,
+  TProviderSearchOut,
+  providerSearchIn,
+} from "../test/apiCalls";
 
 export default function Map() {
+  const map = useRef<MapView>(null);
   const animatedIndex = useSharedValue(0);
+  const [providerLocations, setProviderLocations] = useState<
+    TLocationCoords[] | null
+  >(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const { isLoading, data, error, mutateAsync } = useMutation({
+    mutationFn: async (params: TProviderSearch) => {
+      const response = await fetch(
+        "https://api.evryhealth.com/api/v1/ProviderDirectory/ProviderSearch",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        }
+      );
+      const responseJson = (await response.json()) as TProviderSearchOut;
+      return responseJson;
+    },
+    onSettled: (data) => {
+      if (data && data?.data?.length > 0) {
+        setProviderLocations(
+          data?.data?.map((provider) => ({
+            latitude: provider.latitude,
+            longitude: provider.longitude,
+          }))
+        );
+      }
+    },
+    mutationKey: "covidData",
+  });
+
+  const providerSearchFetch = async (params: TProviderSearch) => {
+    mutateAsync(params);
+  };
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      let address = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      setUserLocation(location);
+    })();
+
+    providerSearchFetch(providerSearchIn);
+  }, []);
+
+  useEffect(() => {
+    if (map.current && providerLocations && providerLocations.length > 0) {
+      map.current.fitToCoordinates(providerLocations, {
+        edgePadding: {
+          top: 20,
+          right: 20,
+          bottom: 20,
+          left: 20,
+        },
+      });
+    }
+  }, [providerLocations]);
+
+  console.log(providerLocations);
+
+  let text = "Waiting..";
+
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (userLocation) {
+    text = JSON.stringify(userLocation);
+  }
 
   const onUserLocationChange = (location: UserLocationChangeEvent) => {
     setUserLocation(location);
+  };
+
+  const resetMap = () => {
+    map.current?.animateToRegion({
+      latitude: userLocation.coords.latitude,
+      longitude: userLocation.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
   };
 
   return (
@@ -29,13 +132,41 @@ export default function Map() {
       <View style={styles.container}>
         <TransitionWrapper>
           <MapView
+            ref={map}
             style={styles.map}
             userInterfaceStyle="dark"
             showsUserLocation={true}
             followsUserLocation={true}
             onUserLocationChange={onUserLocationChange}
+          >
+            {data &&
+              data?.data.length > 0 &&
+              data.data.map((provider) => (
+                <ReMarker
+                  key={provider.provider_directory_location_id}
+                  coordinate={{
+                    latitude: provider.latitude,
+                    longitude: provider.longitude,
+                  }}
+                  title={provider.full_name}
+                  description={provider.specialties[0].value}
+                  type={
+                    provider.entity_type_code === "2"
+                      ? "hospital"
+                      : "individual"
+                  }
+                />
+              ))}
+          </MapView>
+          <FloatingButtonGroup
+            onPressGroup={{
+              userLocation: { onPress: resetMap },
+              home: { onPress: resetMap },
+              searchBounds: { onPress: resetMap },
+              ai: { onPress: resetMap },
+            }}
+            animatedIndex={animatedIndex}
           />
-          <FloatingButtonGroup animatedIndex={animatedIndex} />
           <TransitionViews animatedIndex={animatedIndex} />
         </TransitionWrapper>
       </View>
@@ -43,11 +174,45 @@ export default function Map() {
   );
 }
 
-const FloatingButtonGroup = ({
-  animatedIndex,
-}: {
-  animatedIndex?: SharedValue<number>;
-}) => {
+interface ReMarkerProps extends MapMarkerProps {
+  type: "hospital" | "individual";
+}
+
+const ReMarker = (props: ReMarkerProps) => {
+  const { type } = props;
+  return (
+    <Marker {...props}>
+      <View>
+        {type === "hospital" ? (
+          <Image
+            source={require("../assets/map/markerIconBusiness.png")}
+            style={{ width: 40, height: 50 }}
+          />
+        ) : (
+          <Image
+            source={require("../assets/map/markerIconPerson.png")}
+            style={{ width: 40, height: 50 }}
+          />
+        )}
+      </View>
+    </Marker>
+  );
+};
+
+type TFloatingButtonGroup = {
+  animatedIndex: SharedValue<number>;
+  onPressGroup: {
+    userLocation: { onPress: () => void };
+    home: { onPress: () => void };
+    searchBounds: { onPress: () => void };
+    ai: { onPress: () => void };
+  };
+};
+
+const FloatingButtonGroup = (props: TFloatingButtonGroup) => {
+  const { animatedIndex, onPressGroup } = props;
+  const { userLocation, home, searchBounds, ai } = onPressGroup || {};
+
   const inset = useSafeAreaInsets();
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -74,7 +239,7 @@ const FloatingButtonGroup = ({
   return (
     <Animated.View style={[containerStyle, { position: "absolute" }]}>
       <RoundedFlexContainer>
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity onPress={userLocation.onPress} activeOpacity={0.8}>
           <View
             style={{
               height: 35,
@@ -91,7 +256,7 @@ const FloatingButtonGroup = ({
           </View>
         </TouchableOpacity>
         <Divider noSpacing />
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity onPress={home.onPress} activeOpacity={0.8}>
           <View
             style={{
               height: 35,
@@ -108,7 +273,28 @@ const FloatingButtonGroup = ({
       <Spacer space={10} />
 
       <RoundedFlexContainer>
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity onPress={searchBounds.onPress} activeOpacity={0.8}>
+          <View
+            style={{
+              height: 35,
+              width: 35,
+              backgroundColor: IOS_BUTTON_GRAY,
+              padding: 9,
+            }}
+          >
+            <MaterialCommunityIcons
+              name="map-search"
+              size={18}
+              color={IOS_ICON_GRAY}
+            />
+          </View>
+        </TouchableOpacity>
+      </RoundedFlexContainer>
+
+      <Spacer space={10} />
+
+      <RoundedFlexContainer>
+        <TouchableOpacity onPress={ai.onPress} activeOpacity={0.8}>
           <View
             style={{
               height: 35,

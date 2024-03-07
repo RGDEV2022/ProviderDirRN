@@ -25,7 +25,7 @@ const TransitionViews = ({
 }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const snapPoints = useMemo(() => ["15%", "50%", "100%"], []);
+  const snapPoints = useMemo(() => ["15%", "45%", "100%"], []);
 
   const handleSheetChanges = useCallback((index: number) => {
     bottomSheetRef.current.snapToIndex(index);
@@ -41,7 +41,7 @@ const TransitionViews = ({
           style={[
             style,
             {
-              backgroundColor: `rgba(${DARK_BG_COLOR_VALUE},0.8)`,
+              backgroundColor: `rgba(${DARK_BG_COLOR_VALUE},0.7)`,
               borderTopLeftRadius: 15,
               borderTopRightRadius: 15,
               overflow: "hidden",
@@ -49,7 +49,7 @@ const TransitionViews = ({
           ]}
         >
           <BlurView
-            intensity={50}
+            intensity={30}
             tint="dark"
             style={StyleSheet.absoluteFill}
           />
@@ -63,6 +63,7 @@ const TransitionViews = ({
         <Backdrop appearAfterIndex={1} {...props} />
       )}
       animatedIndex={animatedIndex}
+      enablePanDownToClose={false}
     >
       <Header extendSheet={extendSheet} showFilter={false} />
       <Home />
