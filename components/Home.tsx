@@ -87,10 +87,12 @@ const Home = () => {
         contentContainerStyle={{ paddingBottom: insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <Favorites onPressMore={handleOpenFavoritesSheet} />
-        <Recents onPressMore={handleOpenRecentsSheet} />
-        <Prescriptions onPressMore={handleOpenRecentsSheet} />
-        <HealthTips onPressMore={handleOpenRecentsSheet} />
+        <Animated.View entering={FadeIn} exiting={FadeOut}>
+          <Favorites onPressMore={handleOpenFavoritesSheet} />
+          <Recents onPressMore={handleOpenRecentsSheet} />
+          <Prescriptions onPressMore={handleOpenRecentsSheet} />
+          <HealthTips onPressMore={handleOpenRecentsSheet} />
+        </Animated.View>
       </BottomSheetScrollView>
 
       <Modal

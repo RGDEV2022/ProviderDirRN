@@ -86,3 +86,43 @@ export type TLocationCoords = {
   latitude: number;
   longitude: number;
 };
+
+const GetSearchSuggestionsIn = {
+  search_string: "fami",
+  my_location: { latitude: 32.9822054, longitude: -96.7074236 },
+  plan_id: 1,
+  radius: 50,
+};
+
+export type TGetSearchSuggestionsIn = typeof GetSearchSuggestionsIn;
+
+const GetSearchSuggestionsOut = [
+  {
+    provider_search_suggestion_type: 2,
+    id: "NURSE PRACTITIONER - FAMILY",
+    description: "NURSE PRACTITIONER - FAMILY",
+    specialties: null,
+    address1: null,
+    address2: null,
+    city: null,
+    state: null,
+    zip: null,
+    entity_type_code: null,
+    hospital_based_provider: null,
+  },
+  {
+    provider_search_suggestion_type: 1,
+    id: "2272",
+    description: "HUY QUOC NGUYEN MD",
+    specialties: ["INTERNAL MEDICINE"],
+    address1: "3465 W WALNUT ST",
+    address2: "STE 225",
+    city: "GARLAND",
+    state: "TX",
+    zip: "75042",
+    entity_type_code: "1",
+    hospital_based_provider: false,
+  },
+];
+
+export type TGetSearchSuggestionsOut = typeof GetSearchSuggestionsOut;

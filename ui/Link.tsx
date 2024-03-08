@@ -12,7 +12,7 @@ const Link = (props: IButtonProps) => {
   const linkColor = disabled ? IOS_GRAY : IOS_BLUE;
 
   return (
-    <TouchableOpacity activeOpacity={0.7} {...props}>
+    <TouchableOpacity style={{ zIndex: 10 }} activeOpacity={0.7} {...props}>
       <Text
         style={{
           color: linkColor,

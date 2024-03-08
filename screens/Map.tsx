@@ -3,6 +3,9 @@ import MapView, {
   Marker,
   UserLocationChangeEvent,
   MapMarkerProps,
+  PanDragEvent,
+  Region,
+  Details,
 } from "react-native-maps";
 import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
 import TransitionViews from "../components/TransitionViews";
@@ -24,13 +27,14 @@ import { SharedValue, useSharedValue } from "react-native-reanimated";
 import Spacer from "../ui/Spacer";
 import LottieView from "lottie-react-native";
 import * as Location from "expo-location";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import {
   TLocationCoords,
   TProviderSearch,
   TProviderSearchOut,
   providerSearchIn,
 } from "../test/apiCalls";
+import useDebounce from "../hooks/useDebounce";
 
 export default function Map() {
   const map = useRef<MapView>(null);
@@ -40,7 +44,8 @@ export default function Map() {
   >(null);
   const [userLocation, setUserLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const { isLoading, data, error, mutateAsync } = useMutation({
+  const [isDragging, setIsDragging] = useState(false);
+  const { isPending, data, error, mutateAsync } = useMutation({
     mutationFn: async (params: TProviderSearch) => {
       const response = await fetch(
         "https://api.evryhealth.com/api/v1/ProviderDirectory/ProviderSearch",
@@ -65,7 +70,7 @@ export default function Map() {
         );
       }
     },
-    mutationKey: "covidData",
+    mutationKey: ["providerSearch"],
   });
 
   const providerSearchFetch = async (params: TProviderSearch) => {
@@ -104,8 +109,6 @@ export default function Map() {
     }
   }, [providerLocations]);
 
-  console.log(providerLocations);
-
   let text = "Waiting..";
 
   if (errorMsg) {
@@ -138,6 +141,11 @@ export default function Map() {
             showsUserLocation={true}
             followsUserLocation={true}
             onUserLocationChange={onUserLocationChange}
+            onMoveShouldSetResponder={() => {
+              setIsDragging(true);
+              return true;
+            }}
+            onResponderRelease={() => setIsDragging(false)}
           >
             {data &&
               data?.data.length > 0 &&
@@ -167,7 +175,10 @@ export default function Map() {
             }}
             animatedIndex={animatedIndex}
           />
-          <TransitionViews animatedIndex={animatedIndex} />
+          <TransitionViews
+            isDragging={isDragging}
+            animatedIndex={animatedIndex}
+          />
         </TransitionWrapper>
       </View>
     </>

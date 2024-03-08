@@ -1,14 +1,22 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
-import { DARK_BG_COLOR_VALUE } from "../constants";
+import { DARK_BG_COLOR_VALUE, IOS_BUTTON_GRAY, IOS_GRAY } from "../constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SearchBar from "./SearchBar";
 import Avatar from "../ui/Avatar";
 import FilterBar from "./FilterBar";
 import Divider from "../ui/Divider";
 import { STANDARD_PADDING } from "../constants";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
 
 import ProviderList from "./ProviderList";
 import Backdrop from "../ui/Backdrop";
@@ -17,22 +25,44 @@ import Recents from "./Recents";
 import Home from "./Home";
 import ReBottomSheet from "../ui/ReBottomSheet";
 import { SharedValue } from "react-native-reanimated";
+import Link from "../ui/Link";
+import { useMutation } from "@tanstack/react-query";
+import {
+  TGetSearchSuggestionsIn,
+  TGetSearchSuggestionsOut,
+  TProviderSearchOut,
+} from "../test/apiCalls";
 
 const TransitionViews = ({
+  isDragging,
   animatedIndex,
 }: {
+  isDragging: boolean;
   animatedIndex?: SharedValue<number>;
 }) => {
+  const [isSheetExtended, setIsSheetExtended] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const snapPoints = useMemo(() => ["15%", "45%", "100%"], []);
+  const snapPoints = useMemo(() => ["10%", "45%", "100%"], []);
 
   const handleSheetChanges = useCallback((index: number) => {
     bottomSheetRef.current.snapToIndex(index);
+    if (index === 2) {
+      setIsSheetExtended(true);
+    } else {
+      setIsSheetExtended(false);
+    }
   }, []);
 
-  const extendSheet = (type: "full" | "small") =>
+  const extendSheet = (type: "full" | "small") => {
     bottomSheetRef.current.snapToIndex(type === "full" ? 2 : 1);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      bottomSheetRef.current.snapToIndex(0);
+    }
+  }, [isDragging]);
 
   return (
     <ReBottomSheet
@@ -65,9 +95,13 @@ const TransitionViews = ({
       animatedIndex={animatedIndex}
       enablePanDownToClose={false}
     >
-      <Header extendSheet={extendSheet} showFilter={false} />
-      <Home />
-      {/* <ProviderList /> */}
+      <Header
+        extendSheet={extendSheet}
+        showFilter={false}
+        isSheetExtended={isSheetExtended}
+        setIsSheetExtended={setIsSheetExtended}
+      />
+      {isSheetExtended ? <ProviderList /> : <Home />}
     </ReBottomSheet>
   );
 };
@@ -75,12 +109,54 @@ const TransitionViews = ({
 const Header = ({
   extendSheet,
   showFilter = true,
+  isSheetExtended,
+  setIsSheetExtended,
 }: {
   extendSheet: (type: "full" | "small") => void;
   showFilter?: boolean;
+  isSheetExtended?: boolean;
+  setIsSheetExtended?: (value: boolean) => void;
 }) => {
+  const [suggestions, setSuggestions] = useState<TGetSearchSuggestionsOut>([]);
+  const { isPending, data, error, mutateAsync } = useMutation({
+    mutationFn: async (params: TGetSearchSuggestionsIn) => {
+      const response = await fetch(
+        "https://api.evryhealth.com/api/v1/ProviderDirectory/GetSearchSuggestions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        }
+      );
+      const responseJson = (await response.json()) as TGetSearchSuggestionsOut;
+      return responseJson;
+    },
+    onSettled: (data) => {
+      if (data && data?.length > 0) {
+        setSuggestions(data);
+      }
+    },
+    mutationKey: ["getSearchSuggestions"],
+  });
+
+  const getSearchSuggestionsFetch = async (params: TGetSearchSuggestionsIn) => {
+    mutateAsync(params);
+  };
+
+  const handleInputPress = () => {
+    extendSheet("full");
+    setIsSheetExtended(true);
+  };
+
+  const handleCancel = () => {
+    extendSheet("small");
+    setIsSheetExtended(false);
+  };
+
   return (
-    <View>
+    <>
       <View
         style={{
           paddingLeft: STANDARD_PADDING,
@@ -95,8 +171,12 @@ const Header = ({
             gap: 8,
           }}
         >
-          <SearchBar onPressIn={() => extendSheet("full")} />
-          <Avatar type="user" size="medium" />
+          <SearchBar onPressIn={handleInputPress} />
+          {isSheetExtended ? (
+            <Link text="Cancel" onPress={handleCancel} />
+          ) : (
+            <Avatar type="user" size="medium" />
+          )}
         </View>
       </View>
       {showFilter && (
@@ -105,7 +185,7 @@ const Header = ({
           <Divider />
         </>
       )}
-    </View>
+    </>
   );
 };
 

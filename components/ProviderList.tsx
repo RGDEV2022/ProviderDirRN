@@ -9,6 +9,8 @@ import AnimatedPressable from "../ui/AnimatedPressable";
 import { PROVIDER_DATA, TRANSITION_DURATION } from "../constants";
 import ProviderPeek from "./ProviderPeek";
 import { GestureResponderEvent, LayoutChangeEvent } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { useIsMutating, useMutationState } from "@tanstack/react-query";
 
 const ProviderList = () => {
   const flatListRef = useRef(null);
@@ -17,6 +19,8 @@ const ProviderList = () => {
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const { handleModal } = useModalState();
+  const searchSuggestionData = useMutationState();
+  const isMutating = useIsMutating({ mutationKey: ["getSearchSuggestions"] });
 
   const handleOpenProvider = (e: GestureResponderEvent, locationID: string) => {
     const { pageY, locationY } = e.nativeEvent;
