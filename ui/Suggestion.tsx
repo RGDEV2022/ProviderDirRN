@@ -52,6 +52,7 @@ const Suggestion = (props: ISuggestionProps) => {
           </View>
         </>
       )}
+      <Spacer space={5} />
     </View>
   );
 };

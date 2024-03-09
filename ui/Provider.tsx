@@ -51,13 +51,16 @@ const Provider = (props: IProviderProps) => {
         </View>
       </View>
       <Spacer />
-      {true ? (
-        <View>
-          <FlexContainer>
-            <Skeleton colorMode={"dark"} height={75} width={"25%"} />
-            <Skeleton colorMode={"dark"} height={75} width={"25%"} />
-            <Skeleton colorMode={"dark"} height={75} width={"25%"} />
-          </FlexContainer>
+      {isFetching ? (
+        <View style={{ opacity: 0.4 }}>
+          <View style={{ display: "flex", flexDirection: "row", gap: 10 }}>
+            <Skeleton colorMode={"dark"} height={50} width={100} />
+            <Skeleton colorMode={"dark"} height={50} width={100} />
+            <Skeleton colorMode={"dark"} height={50} width={100} />
+          </View>
+          <Spacer space={10} />
+          <Skeleton colorMode={"dark"} width={"100%"} />
+          <Spacer space={10} />
           <Skeleton colorMode={"dark"} width={"100%"} />
         </View>
       ) : (

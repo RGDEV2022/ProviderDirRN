@@ -72,8 +72,6 @@ const ProviderPeek = (props: IProviderPeekProps) => {
     plan_id: 1,
   };
 
-  console.log(params);
-
   const { data, isFetching } = useQuery<TProviderSearchOut["data"][0]>({
     queryKey: ["getProviderDetail"],
     queryFn: async () => {
@@ -199,8 +197,6 @@ const ProviderPeek = (props: IProviderPeekProps) => {
     }
   );
 
-  console.log(data);
-
   return (
     <Modal
       visible={true}
@@ -290,6 +286,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
                       distance={data?.distance?.toString()}
                       phone={data?.phone_number}
                       acceptNewPatients={data?.accepting_new_patients}
+                      isFetching={isFetching}
                       fullCard
                     />
                   </Card>
@@ -309,7 +306,9 @@ const ProviderPeek = (props: IProviderPeekProps) => {
                           color="white"
                         />
                       </View>
-                      <Text style={styles.buttonText}>1.2 mi</Text>
+                      <Text style={styles.buttonText}>
+                        {data?.distance?.toString()} mi
+                      </Text>
                     </View>
                   </Button>
                   <Button uniform>

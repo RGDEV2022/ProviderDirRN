@@ -87,7 +87,10 @@ const Home = () => {
         contentContainerStyle={{ paddingBottom: insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        <Animated.View entering={FadeIn} exiting={FadeOut}>
+        <Animated.View
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(200)}
+        >
           <Favorites onPressMore={handleOpenFavoritesSheet} />
           <Recents onPressMore={handleOpenRecentsSheet} />
           <Prescriptions onPressMore={handleOpenRecentsSheet} />

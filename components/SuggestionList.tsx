@@ -132,55 +132,55 @@ const SuggestionList = () => {
         delayLongPress={TRANSITION_DURATION}
         disabled={isHeader || isIndividual}
       >
-        <PaddedContainer>
-          {isHeader ? (
-            <View
+        {isHeader ? (
+          <View
+            style={{
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }}
+          >
+            <Text
               style={{
-                shadowColor: "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: 2,
-                },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-                elevation: 5,
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: "600",
+                backgroundColor: "rgba(0,0,0,0.1)",
+                paddingTop: 6,
+                paddingBottom: 6,
+                textAlign: "center",
               }}
             >
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 16,
-                  fontWeight: "600",
-                  backgroundColor: "rgba(0,0,0,0.1)",
-                  paddingTop: 6,
-                  paddingBottom: 6,
-                  textAlign: "center",
-                }}
-              >
-                {item.description}
-              </Text>
-              <BlurView
-                intensity={50}
-                tint="dark"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  zIndex: -1,
-                }}
-              />
-            </View>
-          ) : (
+              {item.description}
+            </Text>
+            <BlurView
+              intensity={50}
+              tint="dark"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: -1,
+              }}
+            />
+          </View>
+        ) : (
+          <PaddedContainer>
             <Suggestion
               description={item.description}
               address={address}
               type={item.provider_search_suggestion_type}
               specialties={item.specialties}
             />
-          )}
-        </PaddedContainer>
+          </PaddedContainer>
+        )}
       </AnimatedPressable>
     );
   };

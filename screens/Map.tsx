@@ -233,6 +233,7 @@ const FloatingButtonGroup = (props: TFloatingButtonGroup) => {
       [1, 0],
       Extrapolation.CLAMP
     ),
+    display: animatedIndex.value <= 1.1 ? "flex" : "none",
   }));
 
   const containerStyle = useMemo(
