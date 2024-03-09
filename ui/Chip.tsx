@@ -1,17 +1,18 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, ViewProps } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-interface ChipProps {
+interface ChipProps extends ViewProps {
   text?: string;
   onPress?: () => void;
   multiSelect?: boolean;
   closeable?: boolean;
   children?: React.ReactNode;
   border?: boolean;
+  sx?: ViewProps["style"];
 }
 
 const Chip = (props: ChipProps) => {
-  const { text, onPress, multiSelect, closeable, border } = props;
+  const { text, onPress, multiSelect, closeable, border, sx } = props;
 
   return (
     <Pressable onPress={onPress}>
@@ -19,6 +20,7 @@ const Chip = (props: ChipProps) => {
         style={[
           styles.container,
           border && { borderColor: "#fff", borderWidth: 0.5 },
+          sx,
         ]}
       >
         {props.children}

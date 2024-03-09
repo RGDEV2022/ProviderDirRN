@@ -26,12 +26,14 @@ import Home from "./Home";
 import ReBottomSheet from "../ui/ReBottomSheet";
 import { SharedValue } from "react-native-reanimated";
 import Link from "../ui/Link";
-import { useMutation } from "@tanstack/react-query";
+import { Mutation, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   TGetSearchSuggestionsIn,
   TGetSearchSuggestionsOut,
   TProviderSearchOut,
 } from "../test/apiCalls";
+import useDebounce from "../hooks/useDebounce";
+import SuggestionList from "./SuggestionList";
 
 const TransitionViews = ({
   isDragging,
@@ -101,7 +103,7 @@ const TransitionViews = ({
         isSheetExtended={isSheetExtended}
         setIsSheetExtended={setIsSheetExtended}
       />
-      {isSheetExtended ? <ProviderList /> : <Home />}
+      {isSheetExtended ? <SuggestionList /> : <Home />}
     </ReBottomSheet>
   );
 };
@@ -117,9 +119,14 @@ const Header = ({
   isSheetExtended?: boolean;
   setIsSheetExtended?: (value: boolean) => void;
 }) => {
+  const [text, setText] = useState("");
   const [suggestions, setSuggestions] = useState<TGetSearchSuggestionsOut>([]);
-  const { isPending, data, error, mutateAsync } = useMutation({
+  const queryClient = useQueryClient();
+  const { isPending, data, error, mutateAsync, reset } = useMutation({
     mutationFn: async (params: TGetSearchSuggestionsIn) => {
+      queryClient.invalidateQueries({ queryKey: ["getSearchSuggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["getSearchSuggestions"] });
+      queryClient.resetQueries({ queryKey: ["getSearchSuggestions"] });
       const response = await fetch(
         "https://api.evryhealth.com/api/v1/ProviderDirectory/GetSearchSuggestions",
         {
@@ -141,8 +148,25 @@ const Header = ({
     mutationKey: ["getSearchSuggestions"],
   });
 
+  const debouncedSearch = useDebounce((params: TGetSearchSuggestionsIn) => {
+    getSearchSuggestionsFetch(params);
+  }, 500);
+
   const getSearchSuggestionsFetch = async (params: TGetSearchSuggestionsIn) => {
     mutateAsync(params);
+  };
+
+  const handleInputOnTextChange = (text: string) => {
+    setText(text);
+    debouncedSearch({
+      my_location: {
+        latitude: 32.98259,
+        longitude: -96.70745,
+      },
+      plan_id: 1,
+      search_string: text,
+      radius: 50,
+    });
   };
 
   const handleInputPress = () => {
@@ -171,7 +195,11 @@ const Header = ({
             gap: 8,
           }}
         >
-          <SearchBar onPressIn={handleInputPress} />
+          <SearchBar
+            onChangeText={handleInputOnTextChange}
+            onPressIn={handleInputPress}
+            value={text}
+          />
           {isSheetExtended ? (
             <Link text="Cancel" onPress={handleCancel} />
           ) : (

@@ -11,16 +11,23 @@ import ProviderPeek from "./ProviderPeek";
 import { GestureResponderEvent, LayoutChangeEvent } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useIsMutating, useMutationState } from "@tanstack/react-query";
+import Suggestion from "../ui/Suggestion";
+import { formattedAddress } from "../helpers/formattedAddress";
 
 const ProviderList = () => {
   const flatListRef = useRef(null);
   const [targetPosition, setTargetPosition] = useState(null);
-  const [componentHeight, setComponentHeight] = useState(null);
+
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const { handleModal } = useModalState();
-  const searchSuggestionData = useMutationState();
+  const searchSuggestionData = useMutationState({
+    filters: { mutationKey: ["getSearchSuggestions"] },
+    select: (state) => state.state.data,
+  });
   const isMutating = useIsMutating({ mutationKey: ["getSearchSuggestions"] });
+
+  const endIndex = searchSuggestionData?.length - 1;
 
   const handleOpenProvider = (e: GestureResponderEvent, locationID: string) => {
     const { pageY, locationY } = e.nativeEvent;
@@ -30,31 +37,19 @@ const ProviderList = () => {
     handleModal(true);
   };
 
-  const handleSetHeight = (e: LayoutChangeEvent, locationID: string) => {
-    const height = e?.nativeEvent?.layout?.height;
-    setComponentHeight((prev) => ({
-      ...prev,
-      [locationID]: height,
-    }));
-  };
-
   const ProviderItem = ({ item }) => {
+    const address = formattedAddress(item);
     return (
       <AnimatedPressable
         key={item.locationID}
-        onLayout={(e) => handleSetHeight(e, item.locationID)}
         onLongPress={(e) => handleOpenProvider(e, item.locationID)}
         delayLongPress={TRANSITION_DURATION}
       >
         <PaddedContainer>
-          <Provider
-            title={item.title}
-            group={item.group}
-            acceptNewPatients={item.acceptNewPatients}
-            address={item.address}
-            type={item.type}
-            distance={item.distance}
-            phone={item.phone}
+          <Suggestion
+            description={item.description}
+            address={address}
+            type={item.provider_search_suggestion_type}
             specialties={item.specialties}
           />
         </PaddedContainer>
@@ -66,7 +61,8 @@ const ProviderList = () => {
     <>
       <BottomSheetFlatList
         ref={flatListRef}
-        data={PROVIDER_DATA}
+        data={(searchSuggestionData[endIndex] as []) || []}
+        ListHeaderComponent={() => <PaddedContainer />}
         bounces={false}
         contentContainerStyle={{
           gap: 10,

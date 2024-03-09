@@ -12,6 +12,7 @@ import { AntDesign } from "@expo/vector-icons";
 import Divider from "./Divider";
 import FlexContainer from "./FlexContainer";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Skeleton } from "moti/skeleton";
 
 interface IProviderProps {
   title: string;
@@ -23,6 +24,7 @@ interface IProviderProps {
   distance: string;
   type: "hospital" | "individual";
   fullCard?: boolean;
+  isFetching?: boolean;
 }
 
 const Provider = (props: IProviderProps) => {
@@ -36,6 +38,7 @@ const Provider = (props: IProviderProps) => {
     distance,
     type,
     fullCard,
+    isFetching,
   } = props;
 
   return (
@@ -48,65 +51,74 @@ const Provider = (props: IProviderProps) => {
         </View>
       </View>
       <Spacer />
-      {fullCard && (
-        <>
-          <Divider noSpacing />
-          <Spacer />
-          <FlexContainer gap={20} flexDirection="row">
-            <View>
-              <Text style={styles.subTitle}>Availability</Text>
-              <AcceptingPatients acceptNewPatients={acceptNewPatients} />
-            </View>
-
-            <Divider orientation="vertical" noSpacing />
-
-            <View>
-              <Text style={styles.subTitle}>Cost</Text>
-              <Text style={[styles.subText, { fontWeight: "600" }]}>$$$</Text>
-            </View>
-
-            <Divider orientation="vertical" noSpacing />
-
-            <View>
-              <Text style={styles.subTitle}>Distance</Text>
-              <View style={styles.textIconFlexContainer}>
-                <MaterialCommunityIcons
-                  name="map-marker-distance"
-                  size={14}
-                  color={IOS_TEXT_GRAY}
-                />
-                <Text style={[styles.subText, { fontWeight: "600" }]}>
-                  1.9 mi
-                </Text>
-              </View>
-            </View>
+      {true ? (
+        <View>
+          <FlexContainer>
+            <Skeleton colorMode={"dark"} height={75} width={"25%"} />
+            <Skeleton colorMode={"dark"} height={75} width={"25%"} />
+            <Skeleton colorMode={"dark"} height={75} width={"25%"} />
           </FlexContainer>
-          <Spacer />
-          <Divider noSpacing />
-        </>
-      )}
-      {!fullCard && (
+          <Skeleton colorMode={"dark"} width={"100%"} />
+        </View>
+      ) : (
         <>
-          <Text style={styles.subText}>(est. {distance} miles away)</Text>
-          <Text style={styles.subText}>Phone: {phone}</Text>
-        </>
-      )}
-
-      {fullCard && (
-        <>
-          <Spacer />
-          <Text style={styles.subTitle}>Specialties</Text>
-          <View style={styles.flexContainer}>
-            {specialties.map((specialty, i) => (
-              <Chip key={i} border>
-                <Text style={styles.subText}>{specialty}</Text>
-              </Chip>
-            ))}
-          </View>
-
-          <Spacer />
-          <Text style={styles.subTitle}>Type</Text>
-          <Text style={styles.subText}>{group}</Text>
+          {fullCard && (
+            <>
+              <Divider noSpacing />
+              <Spacer />
+              <FlexContainer gap={20} flexDirection="row">
+                <View>
+                  <Text style={styles.subTitle}>Availability</Text>
+                  <AcceptingPatients acceptNewPatients={acceptNewPatients} />
+                </View>
+                <Divider orientation="vertical" noSpacing />
+                <View>
+                  <Text style={styles.subTitle}>Cost</Text>
+                  <Text style={[styles.subText, { fontWeight: "600" }]}>
+                    $$$
+                  </Text>
+                </View>
+                <Divider orientation="vertical" noSpacing />
+                <View>
+                  <Text style={styles.subTitle}>Distance</Text>
+                  <View style={styles.textIconFlexContainer}>
+                    <MaterialCommunityIcons
+                      name="map-marker-distance"
+                      size={14}
+                      color={IOS_TEXT_GRAY}
+                    />
+                    <Text style={[styles.subText, { fontWeight: "600" }]}>
+                      1.9 mi
+                    </Text>
+                  </View>
+                </View>
+              </FlexContainer>
+              <Spacer />
+              <Divider noSpacing />
+            </>
+          )}
+          {!fullCard && (
+            <>
+              <Text style={styles.subText}>(est. {distance} miles away)</Text>
+              <Text style={styles.subText}>Phone: {phone}</Text>
+            </>
+          )}
+          {fullCard && (
+            <>
+              <Spacer />
+              <Text style={styles.subTitle}>Specialties</Text>
+              <View style={styles.flexContainer}>
+                {specialties.map((specialty, i) => (
+                  <Chip key={i} border>
+                    <Text style={styles.subText}>{specialty}</Text>
+                  </Chip>
+                ))}
+              </View>
+              <Spacer />
+              <Text style={styles.subTitle}>Type</Text>
+              <Text style={styles.subText}>{group}</Text>
+            </>
+          )}
         </>
       )}
     </View>

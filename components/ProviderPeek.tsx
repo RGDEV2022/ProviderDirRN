@@ -41,16 +41,57 @@ import Spacer from "../ui/Spacer";
 import Backdrop from "../ui/Backdrop";
 import Rate from "./Rate";
 import ReBottomSheet from "../ui/ReBottomSheet";
+import { useQuery } from "@tanstack/react-query";
+import { TProviderSearchOut } from "../test/apiCalls";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 interface IProviderPeekProps {
+  locationId: number;
+  title: string;
+  address: string;
+  specialties: string[];
   setModalVisible: (visible: boolean) => void;
   targetPosition: { y: number };
 }
 
 const ProviderPeek = (props: IProviderPeekProps) => {
-  const { setModalVisible, targetPosition } = props;
+  const {
+    setModalVisible,
+    targetPosition,
+    address,
+    locationId,
+    title,
+    specialties,
+  } = props;
+
+  const params = {
+    id: locationId,
+    procedure_code: null,
+    my_location: { latitude: 32.9822054, longitude: -96.7074236 },
+    plan_id: 1,
+  };
+
+  console.log(params);
+
+  const { data, isFetching } = useQuery<TProviderSearchOut["data"][0]>({
+    queryKey: ["getProviderDetail"],
+    queryFn: async () => {
+      const response = await fetch(
+        "https://api.evryhealth.com/api/v1/ProviderDirectory/GetProviderDetail",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        }
+      );
+      const responseJson = await response.json();
+      return responseJson;
+    },
+  });
+
   const { handleModal } = useModalState();
   const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -158,6 +199,8 @@ const ProviderPeek = (props: IProviderPeekProps) => {
     }
   );
 
+  console.log(data);
+
   return (
     <Modal
       visible={true}
@@ -235,14 +278,18 @@ const ProviderPeek = (props: IProviderPeekProps) => {
                 >
                   <Card>
                     <Provider
-                      title={PROVIDER_DATA[0].title}
-                      group={PROVIDER_DATA[0].group}
-                      address={PROVIDER_DATA[0].address}
-                      type={PROVIDER_DATA[0].type}
-                      distance={PROVIDER_DATA[0].distance}
-                      phone={PROVIDER_DATA[0].phone}
-                      acceptNewPatients={PROVIDER_DATA[0].acceptNewPatients}
-                      specialties={PROVIDER_DATA[0].specialties}
+                      title={title}
+                      group={data?.group_name}
+                      address={address}
+                      specialties={specialties}
+                      type={
+                        data?.entity_type_code == "1"
+                          ? "individual"
+                          : "hospital"
+                      }
+                      distance={data?.distance?.toString()}
+                      phone={data?.phone_number}
+                      acceptNewPatients={data?.accepting_new_patients}
                       fullCard
                     />
                   </Card>
