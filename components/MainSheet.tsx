@@ -18,7 +18,6 @@ import { STANDARD_PADDING } from "../constants";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 
-import ProviderList from "./ProviderList";
 import Backdrop from "../ui/Backdrop";
 import Favorites from "./Favorites";
 import Recents from "./Recents";
@@ -34,14 +33,16 @@ import {
 } from "../test/apiCalls";
 import useDebounce from "../hooks/useDebounce";
 import SuggestionList from "./SuggestionList";
+import useSheetState, { useSearchState } from "../store/store";
 
-const TransitionViews = ({
+const MainSheet = ({
   isDragging,
   animatedIndex,
 }: {
   isDragging: boolean;
   animatedIndex?: SharedValue<number>;
 }) => {
+  const { isMainSheetOpen } = useSheetState();
   const [isSheetExtended, setIsSheetExtended] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -59,6 +60,15 @@ const TransitionViews = ({
   const extendSheet = (type: "full" | "small") => {
     bottomSheetRef.current.snapToIndex(type === "full" ? 2 : 1);
   };
+
+  useEffect(() => {
+    if (isMainSheetOpen === false) {
+      bottomSheetRef.current.close();
+    }
+    if (isMainSheetOpen === undefined || isMainSheetOpen === true) {
+      bottomSheetRef.current.expand();
+    }
+  }, [isMainSheetOpen]);
 
   useEffect(() => {
     if (isDragging) {
@@ -121,6 +131,8 @@ const Header = ({
 }) => {
   const [text, setText] = useState("");
   const [suggestions, setSuggestions] = useState<TGetSearchSuggestionsOut>([]);
+  const { query, setQuery } = useSearchState();
+  const { setIsMainSheetOpen, setIsSearchSheetOpen } = useSheetState();
   const queryClient = useQueryClient();
   const { isPending, data, error, mutateAsync, reset } = useMutation({
     mutationFn: async (params: TGetSearchSuggestionsIn) => {
@@ -179,6 +191,12 @@ const Header = ({
     setIsSheetExtended(false);
   };
 
+  const handleOnSubmit = () => {
+    setQuery(text);
+    setIsSearchSheetOpen(true);
+    setIsMainSheetOpen(false);
+  };
+
   return (
     <>
       <View
@@ -199,6 +217,9 @@ const Header = ({
             onChangeText={handleInputOnTextChange}
             onPressIn={handleInputPress}
             value={text}
+            keyboardAppearance="dark"
+            enterKeyHint="search"
+            onSubmitEditing={() => handleOnSubmit()}
           />
           {isSheetExtended ? (
             <Link text="Cancel" onPress={handleCancel} />
@@ -217,4 +238,4 @@ const Header = ({
   );
 };
 
-export default TransitionViews;
+export default MainSheet;

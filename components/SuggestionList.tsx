@@ -3,7 +3,7 @@ import PaddedContainer from "../ui/PaddedContainer";
 import Divider from "../ui/Divider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect, useRef, useState } from "react";
-import useModalState from "../store/store";
+import useSheetState from "../store/store";
 import AnimatedPressable from "../ui/AnimatedPressable";
 import { IOS_GRAY, PROVIDER_DATA, TRANSITION_DURATION } from "../constants";
 import ProviderPeek from "./ProviderPeek";
@@ -34,7 +34,7 @@ const SuggestionList = () => {
     useState<TGetSearchSuggestionsOut | null>(null);
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
-  const { handleModal } = useModalState();
+  const { handleModal } = useSheetState();
   const searchSuggestionData = useMutationState({
     filters: { mutationKey: ["getSearchSuggestions"] },
     select: (state) => state.state.data,
@@ -102,7 +102,7 @@ const SuggestionList = () => {
     }
   }, [organizedData]);
 
-  const handleOpenProvider = (
+  const handlePeekProvider = (
     e: GestureResponderEvent,
     providerData: TPeekProviderData
   ) => {
@@ -114,10 +114,19 @@ const SuggestionList = () => {
     handleModal(true);
   };
 
-  const ProviderItem = ({ item }) => {
+  const { setIsMainSheetOpen, setSelectedProviderID, setIsProviderSheetOpen } =
+    useSheetState();
+  const handleOpenProvider = (id: number) => {
+    setSelectedProviderID(id);
+    setIsProviderSheetOpen(true);
+    setIsMainSheetOpen(false);
+  };
+
+  const SuggestionItem = ({ item }) => {
     const address = formattedAddress(item);
     const isHeader = item.provider_search_suggestion_type === 3;
     const isIndividual = item.provider_search_suggestion_type === 2;
+
     const peekData: TPeekProviderData = {
       locationId: item.id,
       title: item.description,
@@ -128,8 +137,9 @@ const SuggestionList = () => {
     return (
       <AnimatedPressable
         key={item.id}
-        onLongPress={(e) => handleOpenProvider(e, peekData)}
-        delayLongPress={TRANSITION_DURATION}
+        onLongPress={(e) => handlePeekProvider(e, peekData)}
+        onPress={() => handleOpenProvider(item.id)}
+        delayLongPress={200}
         disabled={isHeader || isIndividual}
       >
         {isHeader ? (
@@ -202,7 +212,7 @@ const SuggestionList = () => {
             <Divider noSpacing />
           </PaddedContainer>
         )}
-        renderItem={ProviderItem}
+        renderItem={SuggestionItem}
         keyExtractor={(item, i) => `${item.title}-${i}`}
         stickyHeaderIndices={headerIndexes.map((item) => item.index + 1)}
       />

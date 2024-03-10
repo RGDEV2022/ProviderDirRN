@@ -1,0 +1,262 @@
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  GestureResponderEvent,
+} from "react-native";
+import { BlurView } from "expo-blur";
+import {
+  DARK_BG_COLOR_VALUE,
+  IOS_BUTTON_GRAY,
+  IOS_GRAY,
+  TRANSITION_DURATION,
+} from "../constants";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import SearchBar from "./SearchBar";
+import Avatar from "../ui/Avatar";
+import FilterBar from "./FilterBar";
+import Divider from "../ui/Divider";
+import { STANDARD_PADDING } from "../constants";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
+
+import Backdrop from "../ui/Backdrop";
+import Favorites from "./Favorites";
+import Recents from "./Recents";
+import Home from "./Home";
+import ReBottomSheet from "../ui/ReBottomSheet";
+import { SharedValue } from "react-native-reanimated";
+import Link from "../ui/Link";
+import {
+  Mutation,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  TGetSearchSuggestionsIn,
+  TGetSearchSuggestionsOut,
+  TProviderSearch,
+  TProviderSearchOut,
+  providerSearchIn,
+} from "../test/apiCalls";
+import useDebounce from "../hooks/useDebounce";
+import SuggestionList from "./SuggestionList";
+import Provider from "../ui/Provider";
+import useSheetState, { useSearchState } from "../store/store";
+import { formattedAddress } from "../helpers/formattedAddress";
+import Spacer from "../ui/Spacer";
+import PaddedContainer from "../ui/PaddedContainer";
+import Suggestion from "../ui/Suggestion";
+import AnimatedPressable from "../ui/AnimatedPressable";
+import ProviderPeek from "./ProviderPeek";
+
+type TPeekProviderData = {
+  locationId: number;
+  title: string;
+  address: string;
+  specialties: string[];
+};
+
+const ResultsSheet = ({
+  isDragging,
+  animatedIndex,
+}: {
+  isDragging: boolean;
+  animatedIndex?: SharedValue<number>;
+}) => {
+  const queryClient = useQueryClient();
+  const flatListRef = useRef(null);
+  const [targetPosition, setTargetPosition] = useState(null);
+  const [peekProviderData, setPeekProviderData] =
+    useState<TPeekProviderData | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const {
+    setIsMainSheetOpen,
+    setSelectedProviderID,
+    handleModal,
+    isSearchSheetOpen,
+    setIsSearchSheetOpen,
+  } = useSheetState();
+  const { query, setQuery } = useSearchState();
+  const insets = useSafeAreaInsets();
+
+  const { data, isFetching, refetch } = useQuery({
+    queryKey: ["providerSearch"],
+    retryOnMount: false,
+    enabled: false,
+    select: (data) => {
+      return data.data as TProviderSearchOut["data"];
+    },
+    queryFn: async () => {
+      const response = await fetch(
+        "https://api.evryhealth.com/api/v1/ProviderDirectory/ProviderSearch",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...providerSearchIn, search_string: query }),
+        }
+      );
+      const responseJson = await response.json();
+      return responseJson;
+    },
+  });
+
+  useEffect(() => {
+    if (query) refetch();
+  }, [query]);
+
+  // const address = formattedAddress(data);
+
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const snapPoints = useMemo(() => ["10%", "45%", "100%"], []);
+
+  useEffect(() => {
+    if (isDragging) {
+      bottomSheetRef.current.snapToIndex(0);
+    }
+  }, [isDragging]);
+
+  const handleGoBack = () => {
+    queryClient.removeQueries({ queryKey: ["providerSearch"] });
+    bottomSheetRef.current.close();
+    setIsMainSheetOpen(true);
+    setQuery(undefined);
+    setIsSearchSheetOpen(false);
+  };
+
+  useEffect(() => {
+    if (isSearchSheetOpen) {
+      bottomSheetRef.current.snapToIndex(1);
+    }
+  }, [query]);
+
+  const handlePeekProvider = (
+    e: GestureResponderEvent,
+    providerData: TPeekProviderData
+  ) => {
+    const { pageY, locationY } = e.nativeEvent;
+    const yPosition = pageY - locationY;
+    setTargetPosition({ y: yPosition });
+    setPeekProviderData(providerData);
+    setModalVisible(true);
+    handleModal(true);
+  };
+
+  const handleOpenProvider = (id: number) => {
+    setSelectedProviderID(id);
+    setIsMainSheetOpen(false);
+  };
+
+  const ProviderItem = ({ item }: { item: TProviderSearchOut["data"][0] }) => {
+    const address = formattedAddress(item);
+
+    const peekData: TPeekProviderData = {
+      locationId: item.provider_directory_location_id,
+      title: item.full_name,
+      address: address,
+      specialties: item.specialties.map((s) => s.value),
+    };
+
+    return (
+      <AnimatedPressable
+        key={item.provider_directory_location_id}
+        onLongPress={(e) => handlePeekProvider(e, peekData)}
+        onPress={() => handleOpenProvider(item.provider_directory_location_id)}
+        delayLongPress={TRANSITION_DURATION}
+      >
+        <PaddedContainer>
+          <Suggestion
+            description={item.full_name}
+            address={address}
+            type={item.entity_type_code === "2" ? 2 : 1}
+            specialties={item.specialties.map((s) => s.value)}
+          />
+        </PaddedContainer>
+      </AnimatedPressable>
+    );
+  };
+
+  return (
+    <ReBottomSheet
+      backgroundComponent={({ style }) => (
+        <View
+          style={[
+            style,
+            {
+              backgroundColor: `rgba(${DARK_BG_COLOR_VALUE},0.7)`,
+              borderTopLeftRadius: 15,
+              borderTopRightRadius: 15,
+              overflow: "hidden",
+            },
+          ]}
+        >
+          <BlurView
+            intensity={30}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+          />
+        </View>
+      )}
+      innerRef={bottomSheetRef}
+      index={-1}
+      snapPoints={snapPoints}
+      backdropComponent={(props) => (
+        <Backdrop appearAfterIndex={1} {...props} />
+      )}
+      animatedIndex={animatedIndex}
+      enablePanDownToClose={false}
+    >
+      <PaddedContainer>
+        <View>
+          <Link text="Back" onPress={() => handleGoBack()} />
+        </View>
+      </PaddedContainer>
+
+      <Spacer space={10} />
+
+      <BottomSheetFlatList
+        ref={flatListRef}
+        data={data || []}
+        ListHeaderComponent={() => <PaddedContainer />}
+        bounces={false}
+        contentContainerStyle={{
+          gap: 10,
+          paddingBottom: insets.bottom + 10,
+        }}
+        showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={() => (
+          <PaddedContainer>
+            <Divider noSpacing />
+          </PaddedContainer>
+        )}
+        renderItem={ProviderItem}
+      />
+
+      {modalVisible ? (
+        <ProviderPeek
+          title={peekProviderData?.title}
+          locationId={peekProviderData?.locationId}
+          address={peekProviderData?.address}
+          specialties={peekProviderData?.specialties}
+          setModalVisible={setModalVisible}
+          targetPosition={targetPosition}
+        />
+      ) : null}
+    </ReBottomSheet>
+  );
+};
+
+export default ResultsSheet;

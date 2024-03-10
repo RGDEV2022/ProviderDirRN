@@ -24,7 +24,7 @@ import {
 import Button from "../ui/Button";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
-import useModalState from "../store/store";
+import useSheetState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   DARK_BG_COLOR_VALUE,
@@ -90,7 +90,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
     },
   });
 
-  const { handleModal } = useModalState();
+  const { handleModal } = useSheetState();
   const insets = useSafeAreaInsets();
   const bottomSheetRef = useRef<BottomSheet>(null);
 

@@ -1,7 +1,7 @@
 import Favorites from "./Favorites";
 import Recents from "./Recents";
 import { View, Text, StyleSheet, ScrollView, Modal } from "react-native";
-import useModalState from "../store/store";
+import useSheetState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   DARK_BG_COLOR_VALUE,
@@ -35,7 +35,7 @@ const Home = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentModalTitle, setCurrentModalTitle] = useState("");
   const insets = useSafeAreaInsets();
-  const { handleModal } = useModalState();
+  const { handleModal } = useSheetState();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const animatedIndex = useSharedValue(0);
 

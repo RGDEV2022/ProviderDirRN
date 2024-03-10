@@ -4,10 +4,10 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import useModalState from "../store/store";
+import useSheetState from "../store/store";
 
 const TransitionWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { modalState } = useModalState();
+  const { modalState } = useSheetState();
   const isModalOpen = modalState;
 
   const scale = useSharedValue(1);

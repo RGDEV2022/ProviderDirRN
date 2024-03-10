@@ -8,7 +8,7 @@ import MapView, {
   Details,
 } from "react-native-maps";
 import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
-import TransitionViews from "../components/TransitionViews";
+import MainSheet from "../components/MainSheet";
 import TransitionWrapper from "../components/TransitionWrapper";
 import { IOS_BUTTON_GRAY, IOS_ICON_GRAY } from "../constants";
 import Animated, {
@@ -27,7 +27,7 @@ import { SharedValue, useSharedValue } from "react-native-reanimated";
 import Spacer from "../ui/Spacer";
 import LottieView from "lottie-react-native";
 import * as Location from "expo-location";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useMutationState } from "@tanstack/react-query";
 import {
   TLocationCoords,
   TProviderSearch,
@@ -35,47 +35,38 @@ import {
   providerSearchIn,
 } from "../test/apiCalls";
 import useDebounce from "../hooks/useDebounce";
+import ProviderSheet from "../components/ProviderSheet";
+import useSheetState, { useSearchState } from "../store/store";
+import ResultsSheet from "../components/ResultsSheet";
+import useObserveQuery from "../hooks/useObservableQuery";
 
 export default function Map() {
   const map = useRef<MapView>(null);
   const animatedIndex = useSharedValue(0);
+  const providerDetailAnimatedIndex = useSharedValue(0);
+  const providerResultsAnimatedIndex = useSharedValue(0);
   const [providerLocations, setProviderLocations] = useState<
     TLocationCoords[] | null
   >(null);
+  const { data, isFetching, isError } = useObserveQuery<TProviderSearchOut>([
+    "providerSearch",
+  ]);
   const [userLocation, setUserLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const { isPending, data, error, mutateAsync } = useMutation({
-    mutationFn: async (params: TProviderSearch) => {
-      const response = await fetch(
-        "https://api.evryhealth.com/api/v1/ProviderDirectory/ProviderSearch",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(params),
-        }
-      );
-      const responseJson = (await response.json()) as TProviderSearchOut;
-      return responseJson;
-    },
-    onSettled: (data) => {
-      if (data && data?.data?.length > 0) {
-        setProviderLocations(
-          data?.data?.map((provider) => ({
-            latitude: provider.latitude,
-            longitude: provider.longitude,
-          }))
-        );
-      }
-    },
-    mutationKey: ["providerSearch"],
-  });
+  const { selectedProviderID } = useSheetState();
+  const { query } = useSearchState();
 
-  const providerSearchFetch = async (params: TProviderSearch) => {
-    mutateAsync(params);
-  };
+  useEffect(() => {
+    if (data && data?.data?.length > 0) {
+      setProviderLocations(
+        data?.data?.map((provider) => ({
+          latitude: provider.latitude,
+          longitude: provider.longitude,
+        }))
+      );
+    }
+  }, [data]);
 
   useEffect(() => {
     (async () => {
@@ -92,8 +83,6 @@ export default function Map() {
       });
       setUserLocation(location);
     })();
-
-    providerSearchFetch(providerSearchIn);
   }, []);
 
   useEffect(() => {
@@ -173,11 +162,22 @@ export default function Map() {
               searchBounds: { onPress: resetMap },
               ai: { onPress: resetMap },
             }}
-            animatedIndex={animatedIndex}
+            animatedIndex={
+              selectedProviderID
+                ? providerDetailAnimatedIndex
+                : query
+                ? providerResultsAnimatedIndex
+                : animatedIndex
+            }
           />
-          <TransitionViews
+          <MainSheet isDragging={isDragging} animatedIndex={animatedIndex} />
+          <ProviderSheet
             isDragging={isDragging}
-            animatedIndex={animatedIndex}
+            animatedIndex={providerDetailAnimatedIndex}
+          />
+          <ResultsSheet
+            isDragging={isDragging}
+            animatedIndex={providerResultsAnimatedIndex}
           />
         </TransitionWrapper>
       </View>

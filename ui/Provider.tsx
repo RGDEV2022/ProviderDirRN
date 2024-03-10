@@ -111,7 +111,7 @@ const Provider = (props: IProviderProps) => {
               <Spacer />
               <Text style={styles.subTitle}>Specialties</Text>
               <View style={styles.flexContainer}>
-                {specialties.map((specialty, i) => (
+                {specialties?.map((specialty, i) => (
                   <Chip key={i} border>
                     <Text style={styles.subText}>{specialty}</Text>
                   </Chip>
