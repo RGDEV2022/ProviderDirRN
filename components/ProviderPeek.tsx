@@ -1,10 +1,7 @@
 import Provider from "../ui/Provider";
-import { View, Text, Modal, StyleSheet } from "react-native";
-import { BlurView } from "expo-blur";
+import { View, Text, StyleSheet } from "react-native";
 import Card from "../ui/Card";
 import Animated, {
-  FadeIn,
-  FadeOut,
   useSharedValue,
   useAnimatedStyle,
   interpolate,
@@ -26,25 +23,17 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import useSheetState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  DARK_BG_COLOR_VALUE,
-  IOS_GREEN,
-  IOS_ORANGE,
-  IOS_RED,
-  PROVIDER_DATA,
-} from "../constants";
+import { DARK_BG_COLOR_VALUE } from "../constants";
 import { useEffect, useMemo, useRef } from "react";
 import { SpringConfig } from "react-native-reanimated/lib/typescript/reanimated2/animation/springUtils";
 import BottomSheet from "@gorhom/bottom-sheet";
 import CircleButton from "../ui/CircleButton";
 import Spacer from "../ui/Spacer";
-import Backdrop from "../ui/Backdrop";
 import Rate from "./Rate";
 import ReBottomSheet from "../ui/ReBottomSheet";
 import { useQuery } from "@tanstack/react-query";
 import { TProviderSearchOut } from "../test/apiCalls";
-
-const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
+import ReModal from "../ui/ReModal";
 
 interface IProviderPeekProps {
   locationId: number;
@@ -198,34 +187,13 @@ const ProviderPeek = (props: IProviderPeekProps) => {
   );
 
   return (
-    <Modal
+    <ReModal
       visible={true}
       transparent={true}
       animationType="fade"
       statusBarTranslucent={true}
+      handleCloseModal={handleCloseModal}
     >
-      <AnimatedBlurView
-        entering={FadeIn}
-        exiting={FadeOut}
-        intensity={50}
-        tint="dark"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}
-      />
-      <CircleButton
-        style={{
-          position: "absolute",
-          top: insets.top,
-          right: 15,
-          zIndex: 1,
-        }}
-        onPress={handleCloseModal}
-      />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GestureDetector gesture={pan}>
           <Animated.View
@@ -381,7 +349,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
           <Rate />
         </View>
       </ReBottomSheet>
-    </Modal>
+    </ReModal>
   );
 };
 

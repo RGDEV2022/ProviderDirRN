@@ -16,7 +16,7 @@ import Link from "../ui/Link";
 import { useQuery } from "@tanstack/react-query";
 import { TProviderSearchOut } from "../test/apiCalls";
 import Provider from "../ui/Provider";
-import useSheetState from "../store/store";
+import useSheetState, { useSearchState } from "../store/store";
 import { formattedAddress } from "../helpers/formattedAddress";
 import Spacer from "../ui/Spacer";
 import PaddedContainer from "../ui/PaddedContainer";
@@ -43,7 +43,10 @@ const ProviderSheet = ({
     setIsMainSheetOpen,
     isProviderSheetOpen,
     setIsProviderSheetOpen,
+    setIsSearchSheetOpen,
   } = useSheetState();
+
+  const { query } = useSearchState();
 
   const params = {
     id: selectedProviderID,
@@ -76,9 +79,13 @@ const ProviderSheet = ({
 
   const handleGoBack = () => {
     bottomSheetRef.current.close();
-    setIsMainSheetOpen(true);
     setSelectedProviderID(undefined);
     setIsProviderSheetOpen(false);
+    if (query) {
+      setIsSearchSheetOpen(true);
+    } else {
+      setIsMainSheetOpen(true);
+    }
   };
 
   useEffect(() => {

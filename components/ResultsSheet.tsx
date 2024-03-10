@@ -18,6 +18,7 @@ import {
   DARK_BG_COLOR_VALUE,
   IOS_BUTTON_GRAY,
   IOS_GRAY,
+  IOS_TEXT_GRAY,
   TRANSITION_DURATION,
 } from "../constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -59,6 +60,7 @@ import PaddedContainer from "../ui/PaddedContainer";
 import Suggestion from "../ui/Suggestion";
 import AnimatedPressable from "../ui/AnimatedPressable";
 import ProviderPeek from "./ProviderPeek";
+import CircleButton from "../ui/CircleButton";
 
 type TPeekProviderData = {
   locationId: number;
@@ -86,17 +88,15 @@ const ResultsSheet = ({
     handleModal,
     isSearchSheetOpen,
     setIsSearchSheetOpen,
+    setIsProviderSheetOpen,
   } = useSheetState();
   const { query, setQuery } = useSearchState();
   const insets = useSafeAreaInsets();
 
-  const { data, isFetching, refetch } = useQuery({
+  const { data, isFetching, refetch } = useQuery<TProviderSearchOut>({
     queryKey: ["providerSearch"],
     retryOnMount: false,
     enabled: false,
-    select: (data) => {
-      return data.data as TProviderSearchOut["data"];
-    },
     queryFn: async () => {
       const response = await fetch(
         "https://api.evryhealth.com/api/v1/ProviderDirectory/ProviderSearch",
@@ -129,6 +129,8 @@ const ResultsSheet = ({
     }
   }, [isDragging]);
 
+  useEffect(() => {}, [data]);
+
   const handleGoBack = () => {
     queryClient.removeQueries({ queryKey: ["providerSearch"] });
     bottomSheetRef.current.close();
@@ -140,8 +142,10 @@ const ResultsSheet = ({
   useEffect(() => {
     if (isSearchSheetOpen) {
       bottomSheetRef.current.snapToIndex(1);
+    } else {
+      bottomSheetRef.current.close();
     }
-  }, [query]);
+  }, [isSearchSheetOpen]);
 
   const handlePeekProvider = (
     e: GestureResponderEvent,
@@ -157,7 +161,9 @@ const ResultsSheet = ({
 
   const handleOpenProvider = (id: number) => {
     setSelectedProviderID(id);
+    setIsProviderSheetOpen(true);
     setIsMainSheetOpen(false);
+    setIsSearchSheetOpen(false);
   };
 
   const ProviderItem = ({ item }: { item: TProviderSearchOut["data"][0] }) => {
@@ -219,17 +225,34 @@ const ResultsSheet = ({
       animatedIndex={animatedIndex}
       enablePanDownToClose={false}
     >
-      <PaddedContainer>
-        <View>
-          <Link text="Back" onPress={() => handleGoBack()} />
-        </View>
-      </PaddedContainer>
+      {data && (
+        <PaddedContainer>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <View>
+              <Text style={{ fontSize: 18, fontWeight: "700", color: "#fff" }}>
+                {query}
+              </Text>
+              <Text style={{ fontSize: 12, color: IOS_TEXT_GRAY }}>
+                {data?.total_records} found
+              </Text>
+            </View>
+            <CircleButton onPress={() => handleGoBack()} />
+          </View>
+        </PaddedContainer>
+      )}
 
-      <Spacer space={10} />
+      <Divider />
 
       <BottomSheetFlatList
         ref={flatListRef}
-        data={data || []}
+        data={data?.data || []}
         ListHeaderComponent={() => <PaddedContainer />}
         bounces={false}
         contentContainerStyle={{
