@@ -46,8 +46,8 @@ const CircleButton = (props: IButtonProps) => {
             justifyContent: "center",
             alignItems: "center",
             backgroundColor: buttonColor ? buttonColor : IOS_GRAY,
-            height: size ? buttonSize : width ? width : 22,
-            width: size ? buttonSize : height ? height : 22,
+            height: size ? buttonSize : height ? height : 22,
+            width: size ? buttonSize : width ? width : 22,
             borderRadius: 100,
             shadowColor: "#000",
             shadowOffset: {
@@ -65,7 +65,7 @@ const CircleButton = (props: IButtonProps) => {
             <MaterialCommunityIcons name="close" size={15} color="white" />
           )}
         </View>
-        <Spacer space={6} />
+        {title && <Spacer space={6} />}
         {title && (
           <Text
             style={{
@@ -79,7 +79,7 @@ const CircleButton = (props: IButtonProps) => {
             {title}
           </Text>
         )}
-        <Spacer space={4} />
+        {subTitle && <Spacer space={4} />}
         {subTitle && (
           <Text
             style={{ color: IOS_TEXT_GRAY, fontSize: 11, fontWeight: "600" }}

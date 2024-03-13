@@ -1,10 +1,12 @@
 import { ScrollView, View } from "react-native";
 import Card from "../ui/Card";
 import Group from "../ui/Group";
-import { IOS_RED, STANDARD_PADDING } from "../constants";
+import { IOS_BLUE, IOS_RED, RECENTS, STANDARD_PADDING } from "../constants";
 import CircleButton from "../ui/CircleButton";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Spacer from "../ui/Spacer";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 type TFavorites = {
   onPressMore?: () => void;
@@ -21,18 +23,19 @@ const Favorites = ({ onPressMore }: TFavorites) => {
       >
         <Card>
           <View style={{ display: "flex", flexDirection: "row", gap: 20 }}>
-            {Array(5)
-              .fill(0)
-              .map((_, i) => (
+            {RECENTS.map((item) => {
+              const icon = item.icon(24);
+              return (
                 <CircleButton
                   size="large"
-                  color={IOS_RED}
-                  title={`Hospital Name - ${i}`}
-                  subTitle="1.2 mi"
+                  color={item.color}
+                  title={item.title}
+                  subTitle={item.distance}
                 >
-                  <MaterialCommunityIcons name="pin" size={25} color="white" />
+                  {icon}
                 </CircleButton>
-              ))}
+              );
+            })}
           </View>
         </Card>
       </ScrollView>

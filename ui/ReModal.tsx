@@ -20,7 +20,7 @@ const ReModal = (props: ReModalProps) => {
       <AnimatedBlurView
         entering={FadeIn}
         exiting={FadeOut}
-        intensity={30}
+        intensity={50}
         tint="dark"
         style={{
           position: "absolute",

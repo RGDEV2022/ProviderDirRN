@@ -1,3 +1,6 @@
+import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
+
 export const DARK_BG_COLOR_VALUE = "34, 38, 39";
 export const DARK_CARD_BG_COLOR_VALUE = "44, 44, 46";
 export const DARK_INPUT_BG_COLOR_VALUE = "53, 57, 60";
@@ -475,5 +478,49 @@ export const PROVIDER_DATA: ProviderCardProps[] = [
     phone: "4692041000",
     specialties: ["Acute inpatient hospital"],
     locationID: "11",
+  },
+];
+
+export const RECENTS = [
+  {
+    title: "BAYLOR UNIVERSITY MEDICAL CENTER",
+    distance: "1.2 mi",
+    color: IOS_BLUE,
+    icon: (size: number) => (
+      <FontAwesome5 name="hospital" size={size || 24} color="white" />
+    ),
+  },
+  {
+    title: "MADIHA KORAISHY MD",
+    distance: "1.6 mi",
+    color: IOS_RED,
+    icon: (size: number) => (
+      <FontAwesome6 name="user-doctor" size={size || 24} color="white" />
+    ),
+  },
+  {
+    title: "METHODIST DALLAS MEDICAL CENTER",
+    distance: "2.2 mi",
+    color: IOS_BLUE,
+    icon: (size: number) => (
+      <FontAwesome5 name="hospital" size={size || 24} color="white" />
+    ),
+  },
+
+  {
+    title: "BAYLOR UNIVERSITY MEDICAL CENTER",
+    distance: "1.2 mi",
+    color: IOS_BLUE,
+    icon: (size: number) => (
+      <FontAwesome5 name="hospital" size={size || 24} color="white" />
+    ),
+  },
+  {
+    title: "YURIY ZEYLIKMAN MD",
+    distance: "3.1 mi",
+    color: IOS_RED,
+    icon: (size: number) => (
+      <FontAwesome6 name="user-doctor" size={size || 24} color="white" />
+    ),
   },
 ];

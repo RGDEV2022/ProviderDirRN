@@ -3,9 +3,6 @@ import MapView, {
   Marker,
   UserLocationChangeEvent,
   MapMarkerProps,
-  PanDragEvent,
-  Region,
-  Details,
 } from "react-native-maps";
 import { StyleSheet, TouchableOpacity, View, Image } from "react-native";
 import MainSheet from "../components/MainSheet";
@@ -27,18 +24,12 @@ import { SharedValue, useSharedValue } from "react-native-reanimated";
 import Spacer from "../ui/Spacer";
 import LottieView from "lottie-react-native";
 import * as Location from "expo-location";
-import { useMutation, useMutationState } from "@tanstack/react-query";
-import {
-  TLocationCoords,
-  TProviderSearch,
-  TProviderSearchOut,
-  providerSearchIn,
-} from "../test/apiCalls";
-import useDebounce from "../hooks/useDebounce";
+import { TLocationCoords, TProviderSearchOut } from "../test/apiCalls";
 import ProviderSheet from "../components/ProviderSheet";
 import useSheetState, { useSearchState } from "../store/store";
 import ResultsSheet from "../components/ResultsSheet";
 import useObserveQuery from "../hooks/useObservableQuery";
+import Chat from "../components/Chat";
 
 export default function Map() {
   const map = useRef<MapView>(null);
@@ -54,6 +45,7 @@ export default function Map() {
   const [userLocation, setUserLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { selectedProviderID } = useSheetState();
   const { query } = useSearchState();
 
@@ -155,12 +147,13 @@ export default function Map() {
                 />
               ))}
           </MapView>
+          {isChatOpen && <Chat setIsChatOpen={setIsChatOpen} />}
           <FloatingButtonGroup
             onPressGroup={{
               userLocation: { onPress: resetMap },
               home: { onPress: resetMap },
               searchBounds: { onPress: resetMap },
-              ai: { onPress: resetMap },
+              ai: { onPress: () => setIsChatOpen(true) },
             }}
             animatedIndex={
               selectedProviderID

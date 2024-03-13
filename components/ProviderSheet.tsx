@@ -43,7 +43,7 @@ const ProviderSheet = ({
     setIsMainSheetOpen,
     isProviderSheetOpen,
     setIsProviderSheetOpen,
-    setIsSearchSheetOpen,
+    setIsResultsSheetOpen,
   } = useSheetState();
 
   const { query } = useSearchState();
@@ -82,7 +82,7 @@ const ProviderSheet = ({
     setSelectedProviderID(undefined);
     setIsProviderSheetOpen(false);
     if (query) {
-      setIsSearchSheetOpen(true);
+      setIsResultsSheetOpen(true);
     } else {
       setIsMainSheetOpen(true);
     }

@@ -86,8 +86,8 @@ const ResultsSheet = ({
     setIsMainSheetOpen,
     setSelectedProviderID,
     handleModal,
-    isSearchSheetOpen,
-    setIsSearchSheetOpen,
+    isResultsSheetOpen,
+    setIsResultsSheetOpen,
     setIsProviderSheetOpen,
   } = useSheetState();
   const { query, setQuery } = useSearchState();
@@ -136,16 +136,16 @@ const ResultsSheet = ({
     bottomSheetRef.current.close();
     setIsMainSheetOpen(true);
     setQuery(undefined);
-    setIsSearchSheetOpen(false);
+    setIsResultsSheetOpen(false);
   };
 
   useEffect(() => {
-    if (isSearchSheetOpen) {
+    if (isResultsSheetOpen) {
       bottomSheetRef.current.snapToIndex(1);
     } else {
       bottomSheetRef.current.close();
     }
-  }, [isSearchSheetOpen]);
+  }, [isResultsSheetOpen]);
 
   const handlePeekProvider = (
     e: GestureResponderEvent,
@@ -163,7 +163,7 @@ const ResultsSheet = ({
     setSelectedProviderID(id);
     setIsProviderSheetOpen(true);
     setIsMainSheetOpen(false);
-    setIsSearchSheetOpen(false);
+    setIsResultsSheetOpen(false);
   };
 
   const ProviderItem = ({ item }: { item: TProviderSearchOut["data"][0] }) => {

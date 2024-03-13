@@ -5,6 +5,7 @@ import {
   IOS_GRAY,
   IOS_RED,
   IOS_TEXT_GRAY,
+  RECENTS,
   STANDARD_PADDING,
 } from "../constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -29,27 +30,19 @@ const Recents = ({ onPressMore }: TFavorites) => {
         <Spacer space={8} />
 
         <Card sx={{ display: "flex", flexDirection: "column" }} noPadding>
-          {Array(5)
-            .fill(0)
-            .map((_, i) => (
-              <View>
-                <MenuItem
-                  title={`Hospital Name - ${i}`}
-                  subTitle="1.2 mi"
-                  startAdornment={{
-                    component: (
-                      <MaterialCommunityIcons
-                        name="pin"
-                        size={16}
-                        color="white"
-                      />
-                    ),
-                    color: IOS_RED,
-                  }}
-                />
-                {i < 5 - 1 && <Divider noSpacing />}
-              </View>
-            ))}
+          {RECENTS.map((item, i) => (
+            <View>
+              <MenuItem
+                title={item.title}
+                subTitle={item.distance}
+                startAdornment={{
+                  component: item.icon(16),
+                  color: item.color,
+                }}
+              />
+              {i < 5 - 1 && <Divider noSpacing />}
+            </View>
+          ))}
         </Card>
       </View>
     </Group>

@@ -42,6 +42,8 @@ const MainSheet = ({
   isDragging: boolean;
   animatedIndex?: SharedValue<number>;
 }) => {
+  const [text, setText] = useState("");
+  const { query, setQuery } = useSearchState();
   const { isMainSheetOpen } = useSheetState();
   const [isSheetExtended, setIsSheetExtended] = useState(false);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -112,8 +114,10 @@ const MainSheet = ({
         showFilter={false}
         isSheetExtended={isSheetExtended}
         setIsSheetExtended={setIsSheetExtended}
+        text={text}
+        setText={setText}
       />
-      {isSheetExtended ? <SuggestionList /> : <Home />}
+      {isSheetExtended && (query || text) ? <SuggestionList /> : <Home />}
     </ReBottomSheet>
   );
 };
@@ -123,16 +127,19 @@ const Header = ({
   showFilter = true,
   isSheetExtended,
   setIsSheetExtended,
+  text,
+  setText,
 }: {
   extendSheet: (type: "full" | "small") => void;
   showFilter?: boolean;
   isSheetExtended?: boolean;
   setIsSheetExtended?: (value: boolean) => void;
+  text?: string;
+  setText?: (value: string) => void;
 }) => {
-  const [text, setText] = useState("");
   const [suggestions, setSuggestions] = useState<TGetSearchSuggestionsOut>([]);
   const { query, setQuery } = useSearchState();
-  const { setIsMainSheetOpen, setIsSearchSheetOpen } = useSheetState();
+  const { setIsMainSheetOpen, setIsResultsSheetOpen } = useSheetState();
   const queryClient = useQueryClient();
   const { isPending, data, error, mutateAsync, reset } = useMutation({
     mutationFn: async (params: TGetSearchSuggestionsIn) => {
@@ -193,7 +200,7 @@ const Header = ({
 
   const handleOnSubmit = () => {
     setQuery(text);
-    setIsSearchSheetOpen(true);
+    setIsResultsSheetOpen(true);
     setIsMainSheetOpen(false);
   };
 
@@ -221,7 +228,7 @@ const Header = ({
             enterKeyHint="search"
             onSubmitEditing={() => handleOnSubmit()}
           />
-          {isSheetExtended ? (
+          {isSheetExtended && (query || text) ? (
             <Link text="Cancel" onPress={handleCancel} />
           ) : (
             <Avatar type="user" size="medium" />

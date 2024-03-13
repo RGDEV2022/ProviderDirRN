@@ -7,8 +7,8 @@ type TModalState = {
   setSelectedProviderID?: (id: number | undefined) => void;
   isMainSheetOpen?: boolean;
   setIsMainSheetOpen: (index: boolean | undefined) => void;
-  isSearchSheetOpen?: boolean;
-  setIsSearchSheetOpen: (index: boolean | undefined) => void;
+  isResultsSheetOpen?: boolean;
+  setIsResultsSheetOpen: (index: boolean | undefined) => void;
   isProviderSheetOpen?: boolean;
   setIsProviderSheetOpen: (index: boolean | undefined) => void;
 };
@@ -26,9 +26,9 @@ export const useSheetState = create<TModalState>((set) => ({
   isMainSheetOpen: undefined,
   setIsMainSheetOpen: (isMainSheetOpen) =>
     set((state) => ({ isMainSheetOpen })),
-  isSearchSheetOpen: undefined,
-  setIsSearchSheetOpen: (isSearchSheetOpen) =>
-    set((state) => ({ isSearchSheetOpen })),
+  isResultsSheetOpen: undefined,
+  setIsResultsSheetOpen: (isResultsSheetOpen) =>
+    set((state) => ({ isResultsSheetOpen })),
   isProviderSheetOpen: undefined,
   setIsProviderSheetOpen: (isProviderSheetOpen) =>
     set((state) => ({ isProviderSheetOpen })),
