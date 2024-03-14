@@ -524,3 +524,5 @@ export const RECENTS = [
     ),
   },
 ];
+
+export const WS_URL = "ws://192.168.4.21:58211";

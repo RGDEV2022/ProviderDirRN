@@ -59,7 +59,7 @@ import Spacer from "../ui/Spacer";
 import PaddedContainer from "../ui/PaddedContainer";
 import Suggestion from "../ui/Suggestion";
 import AnimatedPressable from "../ui/AnimatedPressable";
-import ProviderPeek from "./ProviderPeek";
+import ProviderPeek from "./Peek";
 import CircleButton from "../ui/CircleButton";
 
 type TPeekProviderData = {
@@ -124,10 +124,10 @@ const ResultsSheet = ({
   const snapPoints = useMemo(() => ["10%", "45%", "100%"], []);
 
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging && isResultsSheetOpen) {
       bottomSheetRef.current.snapToIndex(0);
     }
-  }, [isDragging]);
+  }, [isDragging, isResultsSheetOpen]);
 
   useEffect(() => {}, [data]);
 

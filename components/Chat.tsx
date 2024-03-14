@@ -8,6 +8,7 @@ import {
   IOS_GRAY,
   IOS_TEXT_GRAY,
   STANDARD_PADDING,
+  WS_URL,
 } from "../constants";
 import Card from "../ui/Card";
 import CircleButton from "../ui/CircleButton";
@@ -35,7 +36,7 @@ const Chat = ({
   const shouldShowSuggestions = !isKeyboardVisible && !messages;
   const { handleModal } = useSheetState();
 
-  const { data, sendWSMessage } = useWebsocket("ws://192.168.4.21:58211");
+  const { data, sendWSMessage } = useWebsocket(WS_URL);
 
   useEffect(() => {
     handleModal(true);
@@ -54,7 +55,13 @@ const Chat = ({
   }, [data]);
 
   const handleSendMessage = (message: string, type: "system" | "user") => {
-    sendWSMessage(JSON.stringify({ message: message, history: messages }));
+    sendWSMessage(
+      JSON.stringify({
+        message: message,
+        history: messages,
+        type: "generalPrompt",
+      })
+    );
 
     setMessages((prev) => {
       if (!prev) {

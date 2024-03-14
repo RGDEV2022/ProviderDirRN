@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import useSheetState from "../store/store";
 import AnimatedPressable from "../ui/AnimatedPressable";
 import { IOS_GRAY, PROVIDER_DATA, TRANSITION_DURATION } from "../constants";
-import ProviderPeek from "./ProviderPeek";
+import Peek from "./Peek";
 import { GestureResponderEvent, Text, View } from "react-native";
 import { useIsMutating, useMutationState } from "@tanstack/react-query";
 import Suggestion from "../ui/Suggestion";
@@ -24,6 +24,7 @@ type TPeekProviderData = {
   title: string;
   address: string;
   specialties: string[];
+  type?: "specialty" | "provider";
 };
 
 const SuggestionList = () => {
@@ -41,7 +42,9 @@ const SuggestionList = () => {
   });
   const [peekProviderData, setPeekProviderData] =
     useState<TPeekProviderData | null>(null);
-
+  const [peekType, setPeekType] = useState<"specialty" | "provider">(
+    "provider"
+  );
   const isMutating = useIsMutating({ mutationKey: ["getSearchSuggestions"] });
 
   const endIndex = searchSuggestionData?.length - 1;
@@ -62,7 +65,9 @@ const SuggestionList = () => {
       const headerIndexes: THeaderIndex[] = [];
 
       const hasType2 = organizedData.some(
-        (item) => item.provider_search_suggestion_type === 2
+        (item) =>
+          item.provider_search_suggestion_type === 2 ||
+          item.provider_search_suggestion_type === 3
       );
       const hasType1 = organizedData.some(
         (item) => item.provider_search_suggestion_type === 1
@@ -73,6 +78,7 @@ const SuggestionList = () => {
       );
 
       hasType1 && headerIndexes.push({ type: "specialty", index: 0 });
+
       if (hasType2) {
         if (hasType1)
           headerIndexes.push({ type: "provider", index: firstType2Index + 1 });
@@ -86,7 +92,7 @@ const SuggestionList = () => {
       headerIndexes.forEach((index) => {
         tempData.splice(index.index, 0, {
           id: "",
-          provider_search_suggestion_type: 3,
+          provider_search_suggestion_type: 4,
           description: index.type === "specialty" ? "Specialty" : "Provider",
           address1: "",
           address2: "",
@@ -110,6 +116,7 @@ const SuggestionList = () => {
     const yPosition = pageY - locationY;
     setTargetPosition({ y: yPosition });
     setPeekProviderData(providerData);
+    setPeekType(providerData.type);
     setModalVisible(true);
     handleModal(true);
   };
@@ -124,14 +131,15 @@ const SuggestionList = () => {
 
   const SuggestionItem = ({ item }) => {
     const address = formattedAddress(item);
-    const isHeader = item.provider_search_suggestion_type === 3;
-    const isIndividual = item.provider_search_suggestion_type === 2;
+    const isHeader = item.provider_search_suggestion_type === 4;
+    const isSpecialty = item.provider_search_suggestion_type === 2;
 
     const peekData: TPeekProviderData = {
       locationId: item.id,
       title: item.description,
       address: address,
       specialties: item.specialties,
+      type: isSpecialty ? "specialty" : "provider",
     };
 
     return (
@@ -140,7 +148,7 @@ const SuggestionList = () => {
         onLongPress={(e) => handlePeekProvider(e, peekData)}
         onPress={() => handleOpenProvider(item.id)}
         delayLongPress={200}
-        disabled={isHeader || isIndividual}
+        disabled={isHeader}
       >
         {isHeader ? (
           <View
@@ -217,13 +225,14 @@ const SuggestionList = () => {
         stickyHeaderIndices={headerIndexes.map((item) => item.index + 1)}
       />
       {modalVisible ? (
-        <ProviderPeek
+        <Peek
           title={peekProviderData?.title}
           locationId={peekProviderData?.locationId}
           address={peekProviderData?.address}
           specialties={peekProviderData?.specialties}
           setModalVisible={setModalVisible}
           targetPosition={targetPosition}
+          type={peekType}
         />
       ) : null}
     </>

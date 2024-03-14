@@ -38,23 +38,26 @@ export const KeyboardAwareInput = (props: IKeyboardAwareInputProps) => {
     }).start();
 
   useEffect(() => {
-    // start the animation when the keyboard appears
-    Keyboard.addListener("keyboardWillShow", (e) => {
-      // use the height of the keyboard (negative because the translateY moves upward)
-      startAnimation(-e.endCoordinates?.height);
-      startPaddingAnimation(0);
-      setKeyboardVisible && setKeyboardVisible(true);
-    });
-    // perform the reverse animation back to keyboardOffset initial value: 0
-    Keyboard.addListener("keyboardWillHide", () => {
-      startAnimation(0);
-      startPaddingAnimation(BOTTOM_PADDING);
-      setKeyboardVisible && setKeyboardVisible(false);
-    });
+    const keyboardWillShowListener = Keyboard?.addListener(
+      "keyboardWillShow",
+      (e) => {
+        startAnimation(-e?.endCoordinates?.height);
+        startPaddingAnimation(0);
+        setKeyboardVisible && setKeyboardVisible(true);
+      }
+    );
+
+    const keyboardWillHideListener = Keyboard?.addListener(
+      "keyboardWillHide",
+      () => {
+        startAnimation(0);
+        startPaddingAnimation(BOTTOM_PADDING);
+        setKeyboardVisible && setKeyboardVisible(false);
+      }
+    );
     return () => {
-      // remove listeners to avoid memory leak
-      Keyboard.removeAllListeners("keyboardWillShow");
-      Keyboard.removeAllListeners("keyboardWillHide");
+      keyboardWillShowListener && keyboardWillShowListener.remove();
+      keyboardWillHideListener && keyboardWillHideListener.remove();
     };
   }, []);
 

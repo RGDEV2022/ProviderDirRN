@@ -23,8 +23,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import useSheetState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DARK_BG_COLOR_VALUE } from "../constants";
-import { useEffect, useMemo, useRef } from "react";
+import { DARK_BG_COLOR_VALUE, WS_URL } from "../constants";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SpringConfig } from "react-native-reanimated/lib/typescript/reanimated2/animation/springUtils";
 import BottomSheet from "@gorhom/bottom-sheet";
 import CircleButton from "../ui/CircleButton";
@@ -34,17 +34,19 @@ import ReBottomSheet from "../ui/ReBottomSheet";
 import { useQuery } from "@tanstack/react-query";
 import { TProviderSearchOut } from "../test/apiCalls";
 import ReModal from "../ui/ReModal";
+import useWebsocket from "../hooks/useWebsocket";
 
-interface IProviderPeekProps {
+interface IPeekProps {
   locationId: number;
   title: string;
   address: string;
   specialties: string[];
   setModalVisible: (visible: boolean) => void;
   targetPosition: { y: number };
+  type?: "provider" | "specialty";
 }
 
-const ProviderPeek = (props: IProviderPeekProps) => {
+const Peek = (props: IPeekProps) => {
   const {
     setModalVisible,
     targetPosition,
@@ -52,7 +54,34 @@ const ProviderPeek = (props: IProviderPeekProps) => {
     locationId,
     title,
     specialties,
+    type = "provider",
   } = props;
+
+  const [sanitizedData, setSanitizedData] = useState<string | null>(null);
+  const { data: wsData, sendWSMessage, isConnected } = useWebsocket(WS_URL);
+
+  useEffect(() => {
+    setTimeout(() => {
+      handleSendMessage();
+    }, 1000);
+  }, []);
+
+  useEffect(() => {
+    if (wsData) {
+      const sanitizedData = wsData.replaceAll('"', "").replaceAll("'", '"');
+
+      setSanitizedData(sanitizedData);
+    }
+  }, [wsData]);
+
+  const handleSendMessage = () => {
+    sendWSMessage(
+      JSON.stringify({
+        message: title,
+        type: "specialtiesPrompt",
+      })
+    );
+  };
 
   const params = {
     id: locationId,
@@ -240,78 +269,91 @@ const ProviderPeek = (props: IProviderPeekProps) => {
                     animatedScale,
                   ]}
                 >
-                  <Card>
-                    <Provider
-                      title={title}
-                      group={data?.group_name}
-                      address={address}
-                      specialties={specialties}
-                      type={
-                        data?.entity_type_code == "1"
-                          ? "individual"
-                          : "hospital"
-                      }
-                      distance={data?.distance?.toString()}
-                      phone={data?.phone_number}
-                      acceptNewPatients={data?.accepting_new_patients}
-                      isFetching={isFetching}
-                      fullCard
-                    />
-                  </Card>
+                  {type === "provider" ? (
+                    <Card>
+                      <Provider
+                        title={title}
+                        group={data?.group_name}
+                        address={address}
+                        specialties={specialties}
+                        type={
+                          data?.entity_type_code == "1"
+                            ? "individual"
+                            : "hospital"
+                        }
+                        distance={data?.distance?.toString()}
+                        phone={data?.phone_number}
+                        acceptNewPatients={data?.accepting_new_patients}
+                        isFetching={isFetching}
+                        fullCard
+                      />
+                    </Card>
+                  ) : (
+                    <Card>
+                      {sanitizedData && (
+                        <Text
+                          style={{ color: "#fff" }}
+                        >{`${sanitizedData}`}</Text>
+                      )}
+                    </Card>
+                  )}
                 </Animated.View>
-                <Animated.View
-                  style={[
-                    { display: "flex", flexDirection: "row", gap: 10 },
-                    animatedScaleButtons,
-                  ]}
-                >
-                  <Button variant="primary" uniform>
-                    <View style={styles.buttonStyle}>
-                      <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons
-                          name="car"
-                          size={22}
-                          color="white"
-                        />
+
+                {type === "provider" && (
+                  <Animated.View
+                    style={[
+                      { display: "flex", flexDirection: "row", gap: 10 },
+                      animatedScaleButtons,
+                    ]}
+                  >
+                    <Button variant="primary" uniform>
+                      <View style={styles.buttonStyle}>
+                        <View style={styles.iconContainer}>
+                          <MaterialCommunityIcons
+                            name="car"
+                            size={22}
+                            color="white"
+                          />
+                        </View>
+                        <Text style={styles.buttonText}>
+                          {data?.distance?.toString()} mi
+                        </Text>
                       </View>
-                      <Text style={styles.buttonText}>
-                        {data?.distance?.toString()} mi
-                      </Text>
-                    </View>
-                  </Button>
-                  <Button uniform>
-                    <View style={styles.buttonStyle}>
-                      <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons
-                          name="phone"
-                          size={19}
-                          color="white"
-                        />
+                    </Button>
+                    <Button uniform>
+                      <View style={styles.buttonStyle}>
+                        <View style={styles.iconContainer}>
+                          <MaterialCommunityIcons
+                            name="phone"
+                            size={19}
+                            color="white"
+                          />
+                        </View>
+                        <Text style={styles.buttonText}>Call</Text>
                       </View>
-                      <Text style={styles.buttonText}>Call</Text>
-                    </View>
-                  </Button>
-                  <Button uniform>
-                    <View style={styles.buttonStyle}>
-                      <View style={styles.iconContainer}>
-                        <Octicons name="share" size={19} color="white" />
+                    </Button>
+                    <Button uniform>
+                      <View style={styles.buttonStyle}>
+                        <View style={styles.iconContainer}>
+                          <Octicons name="share" size={19} color="white" />
+                        </View>
+                        <Text style={styles.buttonText}>Share</Text>
                       </View>
-                      <Text style={styles.buttonText}>Share</Text>
-                    </View>
-                  </Button>
-                  <Button uniform onPress={handleOpenRateSheet}>
-                    <View style={styles.buttonStyle}>
-                      <View style={styles.iconContainer}>
-                        <MaterialCommunityIcons
-                          name="thumb-up"
-                          size={17}
-                          color="white"
-                        />
+                    </Button>
+                    <Button uniform onPress={handleOpenRateSheet}>
+                      <View style={styles.buttonStyle}>
+                        <View style={styles.iconContainer}>
+                          <MaterialCommunityIcons
+                            name="thumb-up"
+                            size={17}
+                            color="white"
+                          />
+                        </View>
+                        <Text style={styles.buttonText}>Rate</Text>
                       </View>
-                      <Text style={styles.buttonText}>Rate</Text>
-                    </View>
-                  </Button>
-                </Animated.View>
+                    </Button>
+                  </Animated.View>
+                )}
               </Animated.View>
             </Animated.View>
           </Animated.View>
@@ -353,7 +395,7 @@ const ProviderPeek = (props: IProviderPeekProps) => {
   );
 };
 
-export default ProviderPeek;
+export default Peek;
 
 const styles = StyleSheet.create({
   buttonText: {

@@ -23,7 +23,7 @@ export const useSheetState = create<TModalState>((set) => ({
   handleModal: (state) => set({ modalState: state }),
   selectedProviderID: undefined,
   setSelectedProviderID: (id) => set({ selectedProviderID: id }),
-  isMainSheetOpen: undefined,
+  isMainSheetOpen: true,
   setIsMainSheetOpen: (isMainSheetOpen) =>
     set((state) => ({ isMainSheetOpen })),
   isResultsSheetOpen: undefined,

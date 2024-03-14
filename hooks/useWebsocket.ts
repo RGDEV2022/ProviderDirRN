@@ -3,9 +3,10 @@ import { useState } from "react";
 const useWebsocket = (url: string) => {
   const ws = new WebSocket(url);
   const [data, setData] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   ws.onopen = () => {
-    console.log("connected");
+    setIsConnected(true);
   };
 
   ws.onmessage = (e) => {
@@ -18,6 +19,7 @@ const useWebsocket = (url: string) => {
 
   ws.onclose = (e) => {
     console.log(e.code, e.reason);
+    setIsConnected(false);
   };
 
   const sendWSMessage = (message: string) => {
@@ -28,7 +30,7 @@ const useWebsocket = (url: string) => {
     }
   };
 
-  return { data, sendWSMessage };
+  return { isConnected, data, sendWSMessage };
 };
 
 export default useWebsocket;

@@ -73,10 +73,10 @@ const MainSheet = ({
   }, [isMainSheetOpen]);
 
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging && isMainSheetOpen) {
       bottomSheetRef.current.snapToIndex(0);
     }
-  }, [isDragging]);
+  }, [isDragging, isMainSheetOpen]);
 
   return (
     <ReBottomSheet

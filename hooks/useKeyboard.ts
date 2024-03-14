@@ -22,8 +22,8 @@ export const useKeyboard = () => {
       onKeyboardDidHide
     );
     return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
+      showSubscription && showSubscription.remove();
+      hideSubscription && hideSubscription.remove();
     };
   }, []);
 

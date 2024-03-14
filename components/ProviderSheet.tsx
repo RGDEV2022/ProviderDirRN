@@ -31,12 +31,6 @@ const ProviderSheet = ({
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["10%", "45%", "100%"], []);
 
-  useEffect(() => {
-    if (isDragging) {
-      bottomSheetRef.current.snapToIndex(0);
-    }
-  }, [isDragging]);
-
   const {
     selectedProviderID,
     setSelectedProviderID,
@@ -45,6 +39,12 @@ const ProviderSheet = ({
     setIsProviderSheetOpen,
     setIsResultsSheetOpen,
   } = useSheetState();
+
+  useEffect(() => {
+    if (isDragging && isProviderSheetOpen) {
+      bottomSheetRef.current.snapToIndex(0);
+    }
+  }, [isDragging, isProviderSheetOpen]);
 
   const { query } = useSearchState();
 
