@@ -1,5 +1,5 @@
 import Provider from "../ui/Provider";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, PixelRatio } from "react-native";
 import Card from "../ui/Card";
 import Animated, {
   useSharedValue,
@@ -23,7 +23,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
 import useSheetState from "../store/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { DARK_BG_COLOR_VALUE, WS_URL } from "../constants";
+import {
+  DARK_BG_COLOR_VALUE,
+  DARK_CARD_BG_COLOR_VALUE,
+  WS_URL,
+} from "../constants";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SpringConfig } from "react-native-reanimated/lib/typescript/reanimated2/animation/springUtils";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -35,6 +39,8 @@ import { useQuery } from "@tanstack/react-query";
 import { TProviderSearchOut } from "../test/apiCalls";
 import ReModal from "../ui/ReModal";
 import useWebsocket from "../hooks/useWebsocket";
+import { WebView, WebViewMessageEvent } from "react-native-webview";
+import LottieView from "lottie-react-native";
 
 interface IPeekProps {
   locationId: number;
@@ -59,6 +65,7 @@ const Peek = (props: IPeekProps) => {
 
   const [sanitizedData, setSanitizedData] = useState<string | null>(null);
   const { data: wsData, sendWSMessage, isConnected } = useWebsocket(WS_URL);
+  const [webViewHeight, setWebViewHeight] = useState(0);
 
   useEffect(() => {
     setTimeout(() => {
@@ -68,7 +75,7 @@ const Peek = (props: IPeekProps) => {
 
   useEffect(() => {
     if (wsData) {
-      const sanitizedData = wsData.replaceAll('"', "").replaceAll("'", '"');
+      const sanitizedData = wsData.replace(/\\/g, "").slice(1, -1);
 
       setSanitizedData(sanitizedData);
     }
@@ -215,6 +222,11 @@ const Peek = (props: IPeekProps) => {
     }
   );
 
+  const onWebViewMessage = (event: WebViewMessageEvent) => {
+    const height = Number(event.nativeEvent.data);
+    setWebViewHeight(height);
+  };
+
   return (
     <ReModal
       visible={true}
@@ -289,11 +301,43 @@ const Peek = (props: IPeekProps) => {
                       />
                     </Card>
                   ) : (
-                    <Card>
-                      {sanitizedData && (
-                        <Text
-                          style={{ color: "#fff" }}
-                        >{`${sanitizedData}`}</Text>
+                    <Card
+                      sx={{
+                        flex: 1,
+                      }}
+                    >
+                      {sanitizedData ? (
+                        <WebView
+                          style={{
+                            height: webViewHeight,
+                            backgroundColor: `rgb(${DARK_CARD_BG_COLOR_VALUE})`,
+                          }}
+                          originWhitelist={["*"]}
+                          source={{ html: sanitizedData }}
+                          onMessage={onWebViewMessage}
+                          injectedJavaScript="window.ReactNativeWebView.postMessage(document.body.scrollHeight)"
+                        />
+                      ) : (
+                        <View
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flex: 1,
+                          }}
+                        >
+                          <LottieView
+                            autoPlay
+                            resizeMode="cover"
+                            style={{
+                              width: 100,
+                              height: 100,
+                              padding: 20,
+                              backgroundColor: "transparent",
+                            }}
+                            source={require("../animations/aiAnalyse.json")}
+                          />
+                        </View>
                       )}
                     </Card>
                   )}
