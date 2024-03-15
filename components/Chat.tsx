@@ -121,7 +121,11 @@ const Chat = ({
               }}
             >
               {messages?.map((message, i) => (
-                <MessageBubble type={message.type} message={message.message} />
+                <MessageBubble
+                  key={i}
+                  type={message.type}
+                  message={message.message}
+                />
               ))}
               {/* <MessageBubble type="user" message="Whats the weather like?" />
                   <MessageBubble type="system" message="Welcome to the chat!" /> */}
@@ -150,7 +154,7 @@ const Chat = ({
                 }}
               >
                 {SUGGESTIONS.map((suggestion, i) => (
-                  <Card onPress={() => console.log("pressed")}>
+                  <Card key={i} onPress={() => console.log("pressed")}>
                     <Text style={{ color: "#fff", fontWeight: "800" }}>
                       {suggestion.title}
                     </Text>

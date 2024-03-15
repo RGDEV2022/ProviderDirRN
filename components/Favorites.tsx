@@ -23,10 +23,11 @@ const Favorites = ({ onPressMore }: TFavorites) => {
       >
         <Card>
           <View style={{ display: "flex", flexDirection: "row", gap: 20 }}>
-            {RECENTS.map((item) => {
+            {RECENTS.map((item, i) => {
               const icon = item.icon(24);
               return (
                 <CircleButton
+                  key={`${item.title}-${i}`}
                   size="large"
                   color={item.color}
                   title={item.title}

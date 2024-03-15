@@ -164,7 +164,7 @@ const Home = () => {
                   {Array(5)
                     .fill(0)
                     .map((_, i) => (
-                      <View>
+                      <View key={i}>
                         <MenuItem
                           title={`Hospital Name - ${i}`}
                           subTitle="1.2 mi"

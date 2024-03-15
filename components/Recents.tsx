@@ -31,7 +31,7 @@ const Recents = ({ onPressMore }: TFavorites) => {
 
         <Card sx={{ display: "flex", flexDirection: "column" }} noPadding>
           {RECENTS.map((item, i) => (
-            <View>
+            <View key={i}>
               <MenuItem
                 title={item.title}
                 subTitle={item.distance}
