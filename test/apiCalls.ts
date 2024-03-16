@@ -126,3 +126,94 @@ const GetSearchSuggestionsOut = [
 ];
 
 export type TGetSearchSuggestionsOut = typeof GetSearchSuggestionsOut;
+
+const ProviderSuggestionOut = {
+  address1: "17110 DALLAS PKWY STE 100",
+  address2: "",
+  city: "DALLAS",
+  description: "TARIQ HASIN KHAN MD",
+  entity_type_code: "1",
+  hospital_based_provider: false,
+  id: "11879",
+  provider_search_suggestion_type: 1,
+  specialties: ["FAMILY MEDICINE"],
+  state: "TX",
+  zip: "75248",
+};
+
+export type TProviderSuggestionOut = typeof ProviderSuggestionOut;
+
+const ProviderDetailsOut = {
+  contracted_providers: null,
+  addresses: [
+    {
+      phone: "9723778800",
+      address1: "3550 PARKWOOD BLVD",
+      address2: "STE 600",
+      city: "FRISCO",
+      county: "COLLIN",
+      state: "TX",
+      zip: "75034",
+      locale_id: null,
+      latitude: 33.109310194685,
+      longitude: -96.81559096929026,
+      distance: null,
+    },
+    {
+      phone: "9723807000",
+      address1: "17110 DALLAS PKWY STE 100",
+      address2: "",
+      city: "DALLAS",
+      county: "DALLAS",
+      state: "TX",
+      zip: "75248",
+      locale_id: null,
+      latitude: 32.98210836272919,
+      longitude: -96.82846461171205,
+      distance: null,
+    },
+  ],
+  lowest_price_provider: null,
+  highest_price_provider: null,
+  entity_type_code: "1",
+  last_name: "TARIQ HASIN KHAN",
+  middle_name: "",
+  first_name: "",
+  suffix: "MD",
+  prefix: "",
+  title: "MD",
+  full_name: " TARIQ HASIN KHAN MD",
+  specialties: [
+    {
+      value: "FAMILY MEDICINE",
+      id: "FAMILY MEDICINE",
+    },
+  ],
+  provider_directory_location_id: 11879,
+  address1: "17110 DALLAS PKWY STE 100",
+  address2: "",
+  city: "DALLAS",
+  state: "TX",
+  zip: "75248",
+  county: "DALLAS",
+  latitude: 32.98210836272919,
+  longitude: -96.82846461171205,
+  distance: null,
+  distance_from_center_of_map: null,
+  phone_number: "9723807000",
+  npi: "1295176675",
+  gender: 1,
+  group_name: "BENT TREE FAMILY PHYSICIANS",
+  accepting_new_patients: true,
+  affiliations: ["JEFFERSON PHYSICIAN GROUP"],
+  accepting_plans: ["Evry Premier (EPO)", "Evry Premier Plus (PPO)"],
+  tooltip: null,
+  estimated_price: null,
+  icon_url: null,
+  procedure_code: null,
+  short_description: null,
+  long_description: null,
+  hospital_based_provider: false,
+};
+
+export type TProviderDetailsOut = typeof ProviderDetailsOut;

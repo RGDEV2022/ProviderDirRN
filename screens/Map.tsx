@@ -24,12 +24,17 @@ import { SharedValue, useSharedValue } from "react-native-reanimated";
 import Spacer from "../ui/Spacer";
 import LottieView from "lottie-react-native";
 import * as Location from "expo-location";
-import { TLocationCoords, TProviderSearchOut } from "../test/apiCalls";
+import {
+  TLocationCoords,
+  TProviderDetailsOut,
+  TProviderSearchOut,
+} from "../test/apiCalls";
 import ProviderSheet from "../components/ProviderSheet";
 import useSheetState, { useSearchState } from "../store/store";
 import ResultsSheet from "../components/ResultsSheet";
 import useObserveQuery from "../hooks/useObservableQuery";
 import Chat from "../components/Chat";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Map() {
   const map = useRef<MapView>(null);
@@ -46,8 +51,17 @@ export default function Map() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { selectedProviderID } = useSheetState();
-  const { query } = useSearchState();
+  const {
+    isMainSheetOpen,
+    isProviderSheetOpen,
+    isResultsSheetOpen,
+    selectedProvider,
+  } = useSheetState();
+
+  useGetProviderDetails({
+    providerId: selectedProvider?.id,
+    setData: setProviderLocations,
+  });
 
   useEffect(() => {
     if (data && data?.data?.length > 0) {
@@ -58,7 +72,7 @@ export default function Map() {
         }))
       );
     }
-  }, [data]);
+  }, [data, isResultsSheetOpen]);
 
   useEffect(() => {
     (async () => {
@@ -156,10 +170,12 @@ export default function Map() {
               ai: { onPress: () => setIsChatOpen(true) },
             }}
             animatedIndex={
-              selectedProviderID
+              isProviderSheetOpen
                 ? providerDetailAnimatedIndex
-                : query
+                : isResultsSheetOpen
                 ? providerResultsAnimatedIndex
+                : isMainSheetOpen
+                ? animatedIndex
                 : animatedIndex
             }
           />
@@ -177,6 +193,50 @@ export default function Map() {
     </>
   );
 }
+
+const useGetProviderDetails = ({
+  providerId,
+  setData,
+}: {
+  providerId: string;
+  setData: (state: TLocationCoords[]) => void;
+}) => {
+  const params = {
+    id: providerId,
+    procedure_code: null,
+    my_location: { latitude: 32.9822054, longitude: -96.7074236 },
+    plan_id: 1,
+  };
+
+  const { data, isFetching, refetch } = useQuery<TProviderDetailsOut>({
+    queryKey: ["getProviderDetail"],
+    queryFn: async () => {
+      const response = await fetch(
+        "https://api.evryhealth.com/api/v1/ProviderDirectory/GetProviderDetail",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        }
+      );
+      const responseJson = await response.json();
+      return responseJson;
+    },
+  });
+
+  useEffect(() => {
+    if (data && providerId) {
+      setData([
+        {
+          latitude: data.latitude,
+          longitude: data.longitude,
+        },
+      ]);
+    }
+  }, [data]);
+};
 
 interface ReMarkerProps extends MapMarkerProps {
   type: "hospital" | "individual";

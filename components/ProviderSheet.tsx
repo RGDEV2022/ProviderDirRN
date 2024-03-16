@@ -14,7 +14,7 @@ import ReBottomSheet from "../ui/ReBottomSheet";
 import { SharedValue } from "react-native-reanimated";
 import Link from "../ui/Link";
 import { useQuery } from "@tanstack/react-query";
-import { TProviderSearchOut } from "../test/apiCalls";
+import { TProviderDetailsOut, TProviderSearchOut } from "../test/apiCalls";
 import Provider from "../ui/Provider";
 import useSheetState, { useSearchState } from "../store/store";
 import { formattedAddress } from "../helpers/formattedAddress";
@@ -32,8 +32,8 @@ const ProviderSheet = ({
   const snapPoints = useMemo(() => ["10%", "45%", "100%"], []);
 
   const {
-    selectedProviderID,
-    setSelectedProviderID,
+    selectedProvider,
+    setSelectedProvider,
     setIsMainSheetOpen,
     isProviderSheetOpen,
     setIsProviderSheetOpen,
@@ -49,37 +49,35 @@ const ProviderSheet = ({
   const { query } = useSearchState();
 
   const params = {
-    id: selectedProviderID,
+    id: selectedProvider?.id,
     procedure_code: null,
     my_location: { latitude: 32.9822054, longitude: -96.7074236 },
     plan_id: 1,
   };
 
-  const { data, isFetching, refetch } = useQuery<TProviderSearchOut["data"][0]>(
-    {
-      queryKey: ["getProviderDetail"],
-      queryFn: async () => {
-        const response = await fetch(
-          "https://api.evryhealth.com/api/v1/ProviderDirectory/GetProviderDetail",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(params),
-          }
-        );
-        const responseJson = await response.json();
-        return responseJson;
-      },
-    }
-  );
+  const { data, isFetching, refetch } = useQuery<TProviderDetailsOut>({
+    queryKey: ["getProviderDetail"],
+    queryFn: async () => {
+      const response = await fetch(
+        "https://api.evryhealth.com/api/v1/ProviderDirectory/GetProviderDetail",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        }
+      );
+      const responseJson = await response.json();
+      return responseJson;
+    },
+  });
 
   const address = formattedAddress(data);
 
   const handleGoBack = () => {
     bottomSheetRef.current.close();
-    setSelectedProviderID(undefined);
+    setSelectedProvider(undefined);
     setIsProviderSheetOpen(false);
     if (query) {
       setIsResultsSheetOpen(true);
@@ -89,11 +87,11 @@ const ProviderSheet = ({
   };
 
   useEffect(() => {
-    if (selectedProviderID && isProviderSheetOpen) {
+    if (selectedProvider && isProviderSheetOpen) {
       bottomSheetRef.current.snapToIndex(1);
       refetch();
     }
-  }, [isProviderSheetOpen, selectedProviderID]);
+  }, [isProviderSheetOpen, selectedProvider]);
 
   return (
     <ReBottomSheet

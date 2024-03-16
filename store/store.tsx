@@ -1,10 +1,11 @@
 import { create } from "zustand";
+import { TProviderSuggestionOut, TProviderSearchOut } from "../test/apiCalls";
 
 type TModalState = {
   modalState: boolean;
   handleModal: (state: boolean) => void;
-  selectedProviderID?: number;
-  setSelectedProviderID?: (id: number | undefined) => void;
+  selectedProvider?: TProviderSuggestionOut;
+  setSelectedProvider?: (state: TProviderSuggestionOut | undefined) => void;
   isMainSheetOpen?: boolean;
   setIsMainSheetOpen: (index: boolean | undefined) => void;
   isResultsSheetOpen?: boolean;
@@ -21,8 +22,8 @@ type TSearchState = {
 export const useSheetState = create<TModalState>((set) => ({
   modalState: false,
   handleModal: (state) => set({ modalState: state }),
-  selectedProviderID: undefined,
-  setSelectedProviderID: (id) => set({ selectedProviderID: id }),
+  selectedProvider: undefined,
+  setSelectedProvider: (payload) => set({ selectedProvider: { ...payload } }),
   isMainSheetOpen: true,
   setIsMainSheetOpen: (isMainSheetOpen) =>
     set((state) => ({ isMainSheetOpen })),

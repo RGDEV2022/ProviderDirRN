@@ -46,6 +46,7 @@ import {
 import {
   TGetSearchSuggestionsIn,
   TGetSearchSuggestionsOut,
+  TProviderSuggestionOut,
   TProviderSearch,
   TProviderSearchOut,
   providerSearchIn,
@@ -84,7 +85,7 @@ const ResultsSheet = ({
   const [modalVisible, setModalVisible] = useState(false);
   const {
     setIsMainSheetOpen,
-    setSelectedProviderID,
+    setSelectedProvider,
     handleModal,
     isResultsSheetOpen,
     setIsResultsSheetOpen,
@@ -159,8 +160,21 @@ const ResultsSheet = ({
     handleModal(true);
   };
 
-  const handleOpenProvider = (id: number) => {
-    setSelectedProviderID(id);
+  const handleOpenProvider = (provider: TProviderSearchOut["data"][0]) => {
+    const providerDetails: TProviderSuggestionOut = {
+      address1: provider.address1,
+      address2: provider.address2,
+      city: provider.city,
+      state: provider.state,
+      zip: provider.zip,
+      entity_type_code: provider.entity_type_code,
+      id: provider.provider_directory_location_id.toString(),
+      description: provider.full_name,
+      specialties: provider.specialties.map((s) => s.value),
+      hospital_based_provider: false,
+      provider_search_suggestion_type: 1,
+    };
+    setSelectedProvider(providerDetails);
     setIsProviderSheetOpen(true);
     setIsMainSheetOpen(false);
     setIsResultsSheetOpen(false);
@@ -180,7 +194,7 @@ const ResultsSheet = ({
       <AnimatedPressable
         key={item.provider_directory_location_id}
         onLongPress={(e) => handlePeekProvider(e, peekData)}
-        onPress={() => handleOpenProvider(item.provider_directory_location_id)}
+        onPress={() => handleOpenProvider(item)}
         delayLongPress={TRANSITION_DURATION}
       >
         <PaddedContainer>

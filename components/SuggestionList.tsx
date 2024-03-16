@@ -11,7 +11,11 @@ import { GestureResponderEvent, Text, View } from "react-native";
 import { useIsMutating, useMutationState } from "@tanstack/react-query";
 import Suggestion from "../ui/Suggestion";
 import { formattedAddress } from "../helpers/formattedAddress";
-import { TGetSearchSuggestionsOut } from "../test/apiCalls";
+import {
+  TGetSearchSuggestionsOut,
+  TProviderSugesstionOut,
+  TProviderSearchOut,
+} from "../test/apiCalls";
 import { BlurView } from "expo-blur";
 
 type THeaderIndex = {
@@ -121,10 +125,10 @@ const SuggestionList = () => {
     handleModal(true);
   };
 
-  const { setIsMainSheetOpen, setSelectedProviderID, setIsProviderSheetOpen } =
+  const { setIsMainSheetOpen, setSelectedProvider, setIsProviderSheetOpen } =
     useSheetState();
-  const handleOpenProvider = (id: number) => {
-    setSelectedProviderID(id);
+  const handleOpenProvider = (provider: TProviderSugesstionOut) => {
+    setSelectedProvider(provider);
     setIsProviderSheetOpen(true);
     setIsMainSheetOpen(false);
   };
@@ -146,7 +150,7 @@ const SuggestionList = () => {
       <AnimatedPressable
         key={item.id}
         onLongPress={(e) => handlePeekProvider(e, peekData)}
-        onPress={() => handleOpenProvider(item.id)}
+        onPress={() => handleOpenProvider(item)}
         delayLongPress={200}
         disabled={isHeader}
       >
