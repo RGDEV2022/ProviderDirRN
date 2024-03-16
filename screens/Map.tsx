@@ -28,6 +28,7 @@ import {
   TLocationCoords,
   TProviderDetailsOut,
   TProviderSearchOut,
+  TProviderSuggestionOut,
 } from "../test/apiCalls";
 import ProviderSheet from "../components/ProviderSheet";
 import useSheetState, { useSearchState } from "../store/store";
@@ -158,6 +159,9 @@ export default function Map() {
                       ? "hospital"
                       : "individual"
                   }
+                  providerId={provider.provider_directory_location_id}
+                  setData={setProviderLocations}
+                  providerData={provider}
                 />
               ))}
           </MapView>
@@ -197,9 +201,11 @@ export default function Map() {
 const useGetProviderDetails = ({
   providerId,
   setData,
+  skip,
 }: {
   providerId: string;
   setData: (state: TLocationCoords[]) => void;
+  skip?: boolean;
 }) => {
   const params = {
     id: providerId,
@@ -226,26 +232,74 @@ const useGetProviderDetails = ({
     },
   });
 
+  const handleSetData = () => {
+    setData([
+      {
+        latitude: data.latitude,
+        longitude: data.longitude,
+      },
+    ]);
+  };
+
   useEffect(() => {
-    if (data && providerId) {
-      setData([
-        {
-          latitude: data.latitude,
-          longitude: data.longitude,
-        },
-      ]);
+    if (!skip && data && providerId) {
+      handleSetData();
     }
   }, [data]);
+
+  return { handleSetData };
 };
 
 interface ReMarkerProps extends MapMarkerProps {
   type: "hospital" | "individual";
+  providerId: number;
+  providerData?: TProviderSearchOut["data"][0];
+  setData: (state: TLocationCoords[]) => void;
 }
 
 const ReMarker = (props: ReMarkerProps) => {
-  const { type } = props;
+  const { type, providerId, setData, providerData } = props;
+
+  const {
+    setIsMainSheetOpen,
+    setSelectedProvider,
+    setIsResultsSheetOpen,
+    setIsProviderSheetOpen,
+  } = useSheetState();
+
+  const handleOpenProvider = () => {
+    const providerDetails: TProviderSuggestionOut = {
+      address1: providerData.address1,
+      address2: providerData.address2,
+      city: providerData.city,
+      state: providerData.state,
+      zip: providerData.zip,
+      entity_type_code: providerData.entity_type_code,
+      id: providerData.provider_directory_location_id.toString(),
+      description: providerData.full_name,
+      specialties: providerData.specialties.map((s) => s.value),
+      hospital_based_provider: false,
+      provider_search_suggestion_type: 1,
+    };
+    setSelectedProvider(providerDetails);
+    setIsProviderSheetOpen(true);
+    setIsMainSheetOpen(false);
+    setIsResultsSheetOpen(false);
+  };
+
+  const handleMarkerPress = () => {
+    handleOpenProvider();
+    handleSetData();
+  };
+
+  const { handleSetData } = useGetProviderDetails({
+    providerId: providerId.toString(),
+    setData: setData,
+    skip: true,
+  });
+
   return (
-    <Marker {...props}>
+    <Marker onPress={handleMarkerPress} {...props}>
       <View>
         {type === "hospital" ? (
           <Image
