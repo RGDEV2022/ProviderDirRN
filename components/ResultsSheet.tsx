@@ -240,26 +240,31 @@ const ResultsSheet = ({
       enablePanDownToClose={false}
     >
       {data && (
-        <PaddedContainer>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <View>
-              <Text style={{ fontSize: 18, fontWeight: "700", color: "#fff" }}>
-                {query}
-              </Text>
-              <Text style={{ fontSize: 12, color: IOS_TEXT_GRAY }}>
-                {data?.total_records} found
-              </Text>
+        <View>
+          <PaddedContainer>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View>
+                <Text
+                  style={{ fontSize: 18, fontWeight: "700", color: "#fff" }}
+                >
+                  {query}
+                </Text>
+                <Text style={{ fontSize: 12, color: IOS_TEXT_GRAY }}>
+                  {data?.total_records} found
+                </Text>
+              </View>
+              <CircleButton onPress={() => handleGoBack()} />
             </View>
-            <CircleButton onPress={() => handleGoBack()} />
-          </View>
-        </PaddedContainer>
+          </PaddedContainer>
+          <FilterBar />
+        </View>
       )}
 
       <Divider />

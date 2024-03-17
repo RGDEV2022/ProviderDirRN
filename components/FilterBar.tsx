@@ -15,6 +15,7 @@ const FilterBar = () => {
         paddingLeft: STANDARD_PADDING,
         marginTop: VERTICAL_PADDING,
       }}
+      showsHorizontalScrollIndicator={false}
       horizontal
     >
       <View style={styles.container}>
