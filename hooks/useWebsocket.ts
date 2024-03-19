@@ -14,11 +14,11 @@ const useWebsocket = (url: string) => {
   };
 
   ws.onerror = (e) => {
-    console.log(e);
+    console.error(e);
   };
 
   ws.onclose = (e) => {
-    console.log(e.code, e.reason);
+    // console.log(e.code, e.reason);
     setIsConnected(false);
   };
 

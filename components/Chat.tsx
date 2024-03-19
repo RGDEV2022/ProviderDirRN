@@ -1,4 +1,10 @@
-import { ScrollView, View, Text, KeyboardAvoidingView } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+} from "react-native";
 import ReModal from "../ui/ReModal";
 import { BlurView } from "expo-blur";
 import KeyboardAwareInput from "../ui/KeyboardAwareInput";
@@ -6,6 +12,7 @@ import LottieView from "lottie-react-native";
 import {
   IOS_BLUE,
   IOS_GRAY,
+  IOS_LIGHT_GRAY,
   IOS_TEXT_GRAY,
   STANDARD_PADDING,
   WS_URL,
@@ -13,11 +20,17 @@ import {
 import Card from "../ui/Card";
 import CircleButton from "../ui/CircleButton";
 import { AntDesign } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import Animated, { FadeIn, FadeOut, FadeInDown } from "react-native-reanimated";
+import { useEffect, useRef, useState } from "react";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  FadeInDown,
+  FadeOutUp,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useSheetState from "../store/store";
 import useWebsocket from "../hooks/useWebsocket";
+import WebView from "react-native-webview";
 
 type TMessage = {
   type: "system" | "user";
@@ -29,11 +42,14 @@ const Chat = ({
 }: {
   setIsChatOpen: (state: boolean) => void;
 }) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [isWorking, setIsWorking] = useState(false);
   const [text, setText] = useState("");
   const [messages, setMessages] = useState<TMessage[] | null>(null);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const insets = useSafeAreaInsets();
-  const shouldShowSuggestions = !isKeyboardVisible && !messages;
+  const shouldShowSuggestions =
+    !isKeyboardVisible && !messages && text.length === 0;
   const { handleModal } = useSheetState();
 
   const { data, sendWSMessage } = useWebsocket(WS_URL);
@@ -44,13 +60,28 @@ const Chat = ({
 
   useEffect(() => {
     if (data) {
-      const sanitizedData = data.replace(/"/g, "");
-      setMessages((prev) => {
-        if (!prev) {
-          return [{ message: sanitizedData, type: "system" }];
+      if (data.includes("isWorking")) {
+        const workingObj = JSON.parse(data);
+        const status = workingObj.isWorking;
+        if (status === true) {
+          setTimeout(() => {
+            setIsWorking(true);
+          }, 500);
+        } else {
+          setIsWorking(false);
         }
-        return [...prev, { message: sanitizedData, type: "system" }];
-      });
+      } else {
+        const isObject = data.includes("{");
+        console.log(data);
+        const parsedData = isObject ? JSON.parse(data) : data;
+        console.log(parsedData);
+        setMessages((prev) => {
+          if (!prev) {
+            return [{ message: parsedData, type: "system" }];
+          }
+          return [...prev, { message: parsedData, type: "system" }];
+        });
+      }
     }
   }, [data]);
 
@@ -94,55 +125,57 @@ const Chat = ({
         }}
       >
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={{
             display: "flex",
             flexGrow: 1,
           }}
           showsVerticalScrollIndicator={false}
+          onContentSizeChange={() =>
+            scrollViewRef.current.scrollToEnd({ animated: true })
+          }
         >
-          <KeyboardAvoidingView
+          {/* <KeyboardAvoidingView
             behavior={"padding"}
             style={{
+              flexGrow: 1,
+              // justifyContent: "flex-end",
+              paddingLeft: STANDARD_PADDING,
+              paddingRight: STANDARD_PADDING,
+            }}
+          > */}
+          <View
+            style={{
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
               justifyContent: "flex-end",
+              gap: STANDARD_PADDING,
+              paddingBottom: isKeyboardVisible ? 60 : 0,
               paddingLeft: STANDARD_PADDING,
               paddingRight: STANDARD_PADDING,
             }}
           >
-            <View
-              style={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                //add items to the bottom
-                justifyContent: "flex-end",
-
-                gap: STANDARD_PADDING,
-                paddingBottom: isKeyboardVisible ? 60 : 0,
-              }}
-            >
-              {messages?.map((message, i) => (
-                <MessageBubble
-                  key={i}
-                  type={message.type}
-                  message={message.message}
-                />
-              ))}
-              {/* <MessageBubble type="user" message="Whats the weather like?" />
-                  <MessageBubble type="system" message="Welcome to the chat!" /> */}
-            </View>
-          </KeyboardAvoidingView>
+            {messages?.map((message, i) => (
+              <MessageBubble
+                key={i}
+                type={message.type}
+                message={message.message}
+              />
+            ))}
+            {isWorking && <MessageBubble type="working" />}
+          </View>
+          {/* </KeyboardAvoidingView> */}
         </ScrollView>
 
-        <View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{}}
-          >
-            {shouldShowSuggestions && (
-              <Animated.View
-                entering={FadeIn}
-                exiting={FadeOut}
+        {shouldShowSuggestions && (
+          <Animated.View entering={FadeIn} exiting={FadeOut}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{}}
+            >
+              <View
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -163,10 +196,10 @@ const Chat = ({
                     </Text>
                   </Card>
                 ))}
-              </Animated.View>
-            )}
-          </ScrollView>
-        </View>
+              </View>
+            </ScrollView>
+          </Animated.View>
+        )}
       </View>
 
       <View
@@ -191,19 +224,24 @@ const Chat = ({
             top: 0,
           }}
         />
+
         <KeyboardAwareInput
           value={text}
           onChangeText={(text) => setText(text)}
           setKeyboardVisible={setKeyboardVisible}
           endAdornment={
-            <CircleButton
-              onPress={() => handleSendMessage(text, "user")}
-              color={IOS_BLUE}
-              height={18}
-              width={18}
-            >
-              <AntDesign name="arrowup" size={13} color="#fff" />
-            </CircleButton>
+            text.length > 0 && (
+              <Animated.View entering={FadeIn} exiting={FadeOut}>
+                <CircleButton
+                  onPress={() => handleSendMessage(text, "user")}
+                  color={IOS_BLUE}
+                  height={17}
+                  width={17}
+                >
+                  <AntDesign name="arrowup" size={13} color="#fff" />
+                </CircleButton>
+              </Animated.View>
+            )
           }
         />
       </View>
@@ -211,30 +249,44 @@ const Chat = ({
   );
 };
 
+type TComponentNames = "requestCardCompletion" | "downloadWelcomeLetter";
+type TComponent = {
+  name: TComponentNames;
+  props: {
+    title: string;
+    description: string;
+    action: any;
+  };
+};
+
 const MessageBubble = ({
   type,
   message,
 }: {
-  type: "system" | "user";
-  message: string;
+  type: "system" | "user" | "working";
+  message?: string | TComponent;
 }) => {
+  const isWorking = type === "working";
+  const isSystem = type === "system" || type === "working";
+  const isComponent = typeof message !== "string";
   return (
     <Animated.View
       entering={FadeInDown}
+      exiting={FadeOutUp}
       style={{
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: type === "system" ? "flex-start" : "flex-end",
-        alignSelf: type === "system" ? "flex-start" : "flex-end",
+        justifyContent: isSystem ? "flex-start" : "flex-end",
+        alignSelf: isSystem ? "flex-start" : "flex-end",
         maxWidth: "85%",
         padding: 10,
         paddingLeft: 15,
         paddingRight: 15,
         borderRadius: 15,
-        borderBottomLeftRadius: type === "system" ? 0 : undefined,
-        borderBottomRightRadius: type === "system" ? 15 : 0,
-        backgroundColor: type === "system" ? IOS_GRAY : IOS_BLUE,
+        borderBottomLeftRadius: isSystem ? 0 : undefined,
+        borderBottomRightRadius: isSystem ? 15 : 0,
+        backgroundColor: isSystem ? IOS_GRAY : IOS_BLUE,
         shadowColor: "#000",
         shadowOffset: {
           width: 0,
@@ -250,16 +302,169 @@ const MessageBubble = ({
           alignSelf: "flex-start",
         }}
       >
-        <Text
-          style={{
-            color: "white",
-          }}
-        >
-          {message}
-        </Text>
+        {isWorking ? (
+          <View>
+            <LottieView
+              autoPlay
+              resizeMode="cover"
+              style={{
+                width: 30,
+                height: 15,
+              }}
+              source={require("../animations/typing.json")}
+            />
+          </View>
+        ) : isComponent ? (
+          <ComponentToRender component={message} />
+        ) : (
+          <Text
+            style={{
+              color: "white",
+            }}
+          >
+            {message}
+          </Text>
+        )}
       </View>
     </Animated.View>
   );
+};
+
+const ComponentToRender = ({ component }: { component: TComponent }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const { name } = component;
+
+  console.log(component.props.action, "action");
+  if (name === "requestCardCompletion") {
+    return (
+      <View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 10,
+            alignItems: "center",
+          }}
+        >
+          <LottieView
+            autoPlay
+            resizeMode="cover"
+            style={{
+              width: 45,
+              height: 45,
+            }}
+            source={require("../animations/doneAnim.json")}
+            loop={false}
+          />
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              maxWidth: "85%",
+            }}
+          >
+            <Text style={{ color: "white", fontWeight: "700" }}>
+              {component.props.title}
+            </Text>
+            <Text style={{ color: "white" }}>
+              {component.props.description}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  } else if (name === "downloadWelcomeLetter") {
+    return (
+      <View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 10,
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              maxWidth: "85%",
+            }}
+          >
+            <Text style={{ color: "white", fontWeight: "700" }}>
+              {component.props.title}
+            </Text>
+            <Text style={{ color: "white" }}>
+              {component.props.description}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => setModalVisible(true)}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#fff",
+              borderRadius: 100,
+              width: 32,
+              height: 32,
+            }}
+          >
+            <LottieView
+              autoPlay
+              resizeMode="cover"
+              style={{
+                position: "absolute",
+                width: 50,
+                height: 50,
+              }}
+              source={require("../animations/downloadAnim.json")}
+              loop={false}
+            />
+          </TouchableOpacity>
+        </View>
+        <ReModal
+          visible={modalVisible}
+          handleCloseModal={() => setModalVisible(false)}
+          transparent={true}
+          animationType="fade"
+          statusBarTranslucent={true}
+        >
+          <WebView
+            source={{ uri: component.props.action }}
+            style={{
+              flex: 1,
+              backgroundColor: "transparent",
+            }}
+            startInLoadingState={true}
+            renderLoading={() => (
+              <View
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <LottieView
+                  autoPlay
+                  resizeMode="cover"
+                  style={{
+                    width: 50,
+                    height: 30,
+                  }}
+                  source={require("../animations/typing.json")}
+                />
+              </View>
+            )}
+          />
+        </ReModal>
+      </View>
+    );
+  }
 };
 
 const SUGGESTIONS = [

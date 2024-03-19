@@ -1,12 +1,12 @@
-import axios from 'axios';
-import { GOOGLE_API_KEY } from './constants';
-import { TGMapsGetAddress } from '../../../types';
+import axios from "axios";
+import { GOOGLE_API_KEY } from "./constants";
+import { TGMapsGetAddress } from "../../../types";
 
 export const calculateBoundsCenter = ({
   swLatitude,
   swLongitude,
   neLatitude,
-  neLongitude
+  neLongitude,
 }: {
   swLatitude: number;
   swLongitude: number;
@@ -18,7 +18,7 @@ export const calculateBoundsCenter = ({
 
   return {
     lat: centerLatitude,
-    lng: centerLongitude
+    lng: centerLongitude,
   };
 };
 
@@ -26,23 +26,28 @@ export const getAddressFromBounds = async ({
   swLatitude,
   swLongitude,
   neLatitude,
-  neLongitude
+  neLongitude,
 }: {
   swLatitude: number;
   swLongitude: number;
   neLatitude: number;
   neLongitude: number;
 }) => {
-  const center = calculateBoundsCenter({ swLatitude, swLongitude, neLatitude, neLongitude });
+  const center = calculateBoundsCenter({
+    swLatitude,
+    swLongitude,
+    neLatitude,
+    neLongitude,
+  });
   const address = await axios
     .get(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${center.lat},${center.lng}&key=${GOOGLE_API_KEY}`
     )
-    .then(response => {
+    .then((response) => {
       return (response.data as TGMapsGetAddress).results[0].formatted_address;
     })
-    .catch(error => {
-      console.log(error);
+    .catch((error) => {
+      console.error(error);
     });
 
   return { address, center };

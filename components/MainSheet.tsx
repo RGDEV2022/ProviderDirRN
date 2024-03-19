@@ -34,6 +34,7 @@ import {
 import useDebounce from "../hooks/useDebounce";
 import SuggestionList from "./SuggestionList";
 import useSheetState, { useSearchState } from "../store/store";
+import ProgressCard from "../ui/ProgressCard";
 
 const MainSheet = ({
   isDragging,

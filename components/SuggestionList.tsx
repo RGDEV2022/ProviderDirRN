@@ -13,7 +13,7 @@ import Suggestion from "../ui/Suggestion";
 import { formattedAddress } from "../helpers/formattedAddress";
 import {
   TGetSearchSuggestionsOut,
-  TProviderSugesstionOut,
+  TProviderSuggestionOut,
   TProviderSearchOut,
 } from "../test/apiCalls";
 import { BlurView } from "expo-blur";
@@ -127,7 +127,7 @@ const SuggestionList = () => {
 
   const { setIsMainSheetOpen, setSelectedProvider, setIsProviderSheetOpen } =
     useSheetState();
-  const handleOpenProvider = (provider: TProviderSugesstionOut) => {
+  const handleOpenProvider = (provider: TProviderSuggestionOut) => {
     setSelectedProvider(provider);
     setIsProviderSheetOpen(true);
     setIsMainSheetOpen(false);
